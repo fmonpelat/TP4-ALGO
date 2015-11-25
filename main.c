@@ -26,7 +26,7 @@ char * GetLines( void );
 operation_status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
-operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * );
+operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * ,char **);
 void test(operation_vector_t * );
 void printArrayShort(ushort *,size_t ,sign_t ,size_t );
 
@@ -39,6 +39,7 @@ int main(int argc,char *argv[])
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     /* simpleCalc */
     int opt;
+    char * filenombre;
     
     /* superCalc */
     operation_vector_t operaciones_vect;
@@ -60,7 +61,7 @@ int main(int argc,char *argv[])
         return EXIT_FAILURE;
     }
     
-    ValidateArguments(argc,argv,&precision,&calcmode);
+    ValidateArguments(argc,argv,&precision,&calcmode,&filenombre);
     
     if ( calcmode==SUPERCALC )
     {
@@ -165,7 +166,7 @@ int main(int argc,char *argv[])
         /* modo calculadora simple */
         printf(MENU);
         scanf("%d",&opt);
-        opcion(opt);
+        opcion(opt,filenombre);
         return 0;
 
     }
@@ -306,7 +307,7 @@ void test(operation_vector_t * oper_vect)
 
 
 
-operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode)
+operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode, char ** filenom)
 {
     
     size_t i=0;
@@ -333,7 +334,12 @@ operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calc
             *precision=atoi(argv[i+1]);
             if (!*precision) *precision=DEFAULT_PRECISION;
         }
+        if (!(strcmp(argv[i],"-output")))
+        {
+            *filenom=argv[i+1];
+        }
     }
+    
     return OK;
     
 }

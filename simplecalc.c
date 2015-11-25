@@ -14,8 +14,9 @@
 
 
 
-void opcion(opt_t opt)
+void opcion(opt_t opt,char *filenombre)
 {
+    
     switch(opt)
     {
         case SUMA: suma_simplecalc();
@@ -42,7 +43,7 @@ void opcion(opt_t opt)
         case ALEATORIO: dialogo_alea();
             break;
             
-        case GRAFICO: menu_graf();
+        case GRAFICO: menu_graf(filenombre);
             break;
             
         default: printf("Entrada inválida, ingrese una opción del menú \n");
@@ -255,7 +256,7 @@ float aleatorio(float min, float max)
     return num;
 }
 
-void menu_graf(void)
+void menu_graf(char *file)
 {
     FILE * pbm;
     int flag_opt=0; /* flag_opt = 0 si no entro a ninguna funcion a graficar */
@@ -335,22 +336,19 @@ void menu_graf(void)
         
     }
     
-    /* Abrimos el pbm para guardar datos como file */
-    /*
-     make_pbm_file(&pbm);
-     */
     
     inicializo_matriz(matriz);
     inicializo_ejes(matriz);
     cargo_matriz(matriz, vect_y);
-    imprimo_matriz(matriz);
-    
-    
-    /* grabamos la info y luego cerramos el file* */
-    /*
-     write_pbm_file(&pbm, matriz, RESOLUCION, RESOLUCION);
-     close_pbm_file(&pbm);
-     */
+    if(file==NULL) imprimo_matriz(matriz);
+    else
+    {
+        /* Abrimos el pbm para guardar datos como file */
+        make_pbm_file(&pbm,file);
+        /* grabamos la info y luego cerramos el file* */
+        write_pbm_file(&pbm, matriz, RESOLUCION, RESOLUCION);
+        close_pbm_file(&pbm);
+    }
     
 }
 
@@ -765,9 +763,11 @@ void limpiarbuffer(void)
  mantenemos la redireccion por stderr para cumplir con el tp.
  */
 
-void make_pbm_file( FILE **fp )
+void make_pbm_file( FILE **fp ,char* nom)
 {
-    *fp=fopen("graph.pbm", "w");
+    if (nom==NULL) *fp=NULL;
+    else *fp=fopen(nom, "w");
+    return;
 }
 
 
@@ -775,22 +775,26 @@ void write_pbm_file( FILE **fp, int matriz[RESOLUCION][RESOLUCION], int fil, int
 {
     int i=0,j=0;
     
-    fprintf(*fp,"%s","P1\n");
-    fprintf(*fp,"%d %d\n",fil,col);
-    
-    for (i=(fil-1); i>=0; i--)
+    if(*fp!=NULL)
     {
-        for (j=0; j<col; j++)
+        fprintf(*fp,"%s","P1\n");
+        fprintf(*fp,"%d %d\n",fil,col);
+        
+        for (i=(fil-1); i>=0; i--)
         {
-            fprintf(*fp,"%d",matriz[i][j]);
+            for (j=0; j<col; j++)
+            {
+                fprintf(*fp,"%d",matriz[i][j]);
+            }
+            fputc('\n', *fp);
         }
         fputc('\n', *fp);
     }
-    fputc('\n', *fp);
+    return;
 }
 
 
 void close_pbm_file( FILE **fp )
 {
-    fclose(*fp);
+    if(*fp!=NULL) fclose(*fp);
 }
