@@ -6,6 +6,7 @@
 #include <string.h>
 #include "bignum.h"
 #include "simplecalc.h"
+#include "bignumList.h"
 
 /* Defines para supercalc */
 #define MAX_STR 10
@@ -26,8 +27,9 @@ char * GetLines( void );
 operation_status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
-operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * ,char **);
+operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * ,char **,char **);
 void test(operation_vector_t * );
+void testLista(operationList_vector_t * oper_vect);
 void printArrayShort(ushort *,size_t ,sign_t ,size_t );
 
 /*#########################*/
@@ -39,7 +41,7 @@ int main(int argc,char *argv[])
     calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
     /* simpleCalc */
     int opt;
-    char * filenombre;
+    char * output=NULL;
     
     /* superCalc */
     operation_vector_t operaciones_vect;
@@ -61,14 +63,15 @@ int main(int argc,char *argv[])
         return EXIT_FAILURE;
     }
     
-    ValidateArguments(argc,argv,&precision,&calcmode,&filenombre);
+    ValidateArguments(argc,argv,&precision,&calcmode,&output,&input);
     
     if ( calcmode==SUPERCALC )
     {
         
-        /* Funcion de Prubas comentar todo abajo de esto salvo los frees
-         test(&operaciones_vect);*/
+        /* Funcion de Prubas comentar todo abajo de esto salvo los frees*/
+         testLista(&operaciones_vect);
         
+        /*
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=_EOF)
@@ -126,7 +129,7 @@ int main(int argc,char *argv[])
         
         
         
-        /* liberamos memoria */
+        /* liberamos memoria
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
@@ -157,7 +160,7 @@ int main(int argc,char *argv[])
         }
         free(operaciones_vect.operaciones);
         operaciones_vect.operaciones=NULL;
-
+    */
         
     }
     else if( calcmode==SIMPLECALC )
@@ -166,7 +169,7 @@ int main(int argc,char *argv[])
         /* modo calculadora simple */
         printf(MENU);
         scanf("%d",&opt);
-        opcion(opt,filenombre);
+        opcion(opt,output);
         return 0;
 
     }
@@ -183,6 +186,36 @@ int main(int argc,char *argv[])
 
 /*###############################*/
 /*####### funciones #############*/
+void testLista(operationList_vector_t * oper_vect)
+{
+    size_t precision=DEFAULT_PRECISION;
+    size_t i=0;
+    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
+    char num1[]="+20";
+    char num2[]="+10";
+    opt_t operation=SUMA;
+    operation_status_t status=OK;
+    
+    inicializarStructOperationList(oper_vect);
+    
+    cargarStructNumerosList(&(oper_vect->operacionesList[oper_vect->operList_size]),
+                            &(oper_vect->operList_size),
+                            &(oper_vect->operList_size),
+                            num1,
+                            num2,
+                            &operation,
+                            precision,
+                            status);
+    
+    printf("primera lista:\n");
+    imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op1->digits);
+    printf("segunda lista:\n");
+    imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op2->digits);
+    
+    
+    
+
+}
 
 void test(operation_vector_t * oper_vect)
 {
@@ -307,7 +340,7 @@ void test(operation_vector_t * oper_vect)
 
 
 
-operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode, char ** filenom)
+operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode, char ** output,char **input)
 {
     
     size_t i=0;
@@ -336,8 +369,14 @@ operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calc
         }
         if (!(strcmp(argv[i],"-output")))
         {
-            *filenom=argv[i+1];
+            *output=argv[i+1];
         }
+        if (!(strcmp(argv[i],"-input")))
+        {
+            *input=argv[i+1];
+        }
+
+        
     }
     
     return OK;

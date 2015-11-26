@@ -10,5 +10,57 @@
 #define __Tp4__bignumList__
 
 #include <stdio.h>
+#include "bignum.h"
+
+typedef unsigned short ushort;
+
+typedef struct bignumNodo {
+    
+    ushort val;
+    struct bignumNodo *sig;
+    struct bignumNodo *ant;
+    
+} bignumNodo_t;
+
+
+typedef struct bignumLis {
+    
+    bignumNodo_t *digits;
+    size_t q_digits;
+    sign_t sign ;
+    sign_t inf;
+    
+} bignumList_t;
+
+typedef struct operationList {
+    
+    bignumList_t *op1;
+    bignumList_t *op2;
+    opt_t op;
+    ushort *rst;
+    size_t q_rst;
+    sign_t sign_rst;
+    sign_t inf_rst;
+    result_state_t st;
+    
+} operationList_t;
+
+typedef struct operationList_vector  {
+    
+    operationList_t **operacionesList;
+    size_t operList_size;
+    
+} operationList_vector_t;
+
+
+/*############ FUNCIONES ###################*/
+void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterior);
+operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision,operation_status_t status);
+operation_status_t AddOperationList(operationList_vector_t *oper);
+operation_status_t inicializarStructOperationList(operationList_vector_t * oper );
+void imprimirLista(bignumNodo_t * lista);
+
+
+
 
 #endif /* defined(__Tp4__bignumList__) */
