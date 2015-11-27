@@ -259,3 +259,89 @@ void imprimirLista(bignumNodo_t * lista){
     imprimirLista(lista->sig);
     
 }
+
+ushort valor_en_lista(bignumList_t *dig,int i)
+{
+    size_t j=0;
+    bignumList_t *aux=NULL;
+    for(aux=dig;aux->sig!=NULL;aux=aux->sig)
+    {
+	if(j==i) break;
+	j++;
+    }
+    return aux->val;
+}
+
+ushort * suma_digito_a_digito (bignumList_t *dig1,bignumList_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    size_t carry=0;
+    ushort *resultado=NULL;
+    int dif=cant1-cant2;
+    int i;
+	
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1+1))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(i=cant1-1;i>=0;i--)
+    {
+        if(i-dif<0)
+        {
+            resultado[i+1]=valor_en_lista(dig1,i)+carry;
+            carry=0;
+        }
+        else
+            resultado[i+1]=valor_en_lista(dig1,i)+valor_en_lista(dig2,i)+carry;
+        
+        carry=0;
+
+        if(resultado[i+1]>9)
+        {
+            
+            resultado[i+1]=resultado[i+1]-10;
+            carry++;
+            
+        }
+    }
+    resultado[0]=carry;
+    *q_resultado=cant1+1;
+    
+    return resultado;
+}
+
+ushort * resta_digito_a_digito (bignumList_t *dig1, bignumList_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    ushort *resultado=NULL;
+    int carry=0,dif;
+    int i=0;
+    
+    dif=cant1-cant2;
+    
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(i=cant1-1;i>=0;i--)
+    {
+        if (i-dif<0)
+        {
+	    resultado[i]=valor_en_lista(dig1,i)-carry;
+            carry=0;
+	}
+        else if((valor_en_lista(dig1,i)-carry))<(valor_en_lista(dig2,i-dif)))
+        {
+            resultado[i]=10+valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
+            if(carry==0) carry=carry+1;
+        }
+        else
+        {
+            resultado[i]=valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
+            carry=0;
+        }
+    }
+    *q_resultado=cant1;
+    return resultado;
+}
+
