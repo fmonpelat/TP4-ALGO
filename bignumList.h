@@ -59,6 +59,9 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
 operation_status_t AddOperationList(operationList_vector_t *oper);
 operation_status_t inicializarStructOperationList(operationList_vector_t * oper );
 void imprimirLista(bignumNodo_t * lista);
+ushort * suma_digito_a_digito (bignumList_t *dig1,bignumList_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
+ushort * resta_digito_a_digito (bignumList_t *dig1, bignumList_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
+ushort valor_en_lista(bignumList_t *dig,int i);
 
 
 
