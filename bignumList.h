@@ -59,10 +59,10 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
 operation_status_t AddOperationList(operationList_vector_t *oper);
 operation_status_t inicializarStructOperationList(operationList_vector_t * oper );
 void imprimirLista(bignumNodo_t * lista);
-ushort * suma_digito_a_digito (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
-ushort * resta_digito_a_digito (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
+ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
+ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
 
-bignumNodo_t * multiplico (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado);
+bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado);
 void freeLista(bignumNodo_t **lista);
 void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i);
 ushort valor_en_lista(bignumNodo_t *dig,int i);
