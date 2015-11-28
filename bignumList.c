@@ -240,7 +240,7 @@ void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterio
         (*lista)->ant=anterior;
         
     }
-    else insertarNodoLista(&((*lista)->sig), valor,*lista);
+    else insertarNodoLista(&((*lista)->sig), valor,*lista/*Creo que este parámetro está mal, no va (*lista)->sig ??*/);
     
 }
 
@@ -259,3 +259,206 @@ void imprimirLista(bignumNodo_t * lista){
     imprimirLista(lista->sig);
     
 }
+
+ushort valor_en_lista(bignumNodo_t *dig,int i)
+{
+    size_t j=0;
+    bignumNodo_t *aux=NULL;
+    for(aux=dig;aux->sig!=NULL;aux=aux->sig)
+    {
+	if(j==i) break;
+	j++;
+    }
+    return aux->val;
+}
+
+ushort * suma_digito_a_digito (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    size_t carry=0;
+    ushort *resultado=NULL;
+    int dif=cant1-cant2;
+    int i;
+	
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1+1))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(i=cant1-1;i>=0;i--)
+    {
+        if(i-dif<0)
+        {
+            resultado[i+1]=valor_en_lista(dig1,i)+carry;
+            carry=0;
+        }
+        else
+            resultado[i+1]=valor_en_lista(dig1,i)+valor_en_lista(dig2,i)+carry;
+        
+        carry=0;
+
+        if(resultado[i+1]>9)
+        {
+            
+            resultado[i+1]=resultado[i+1]-10;
+            carry++;
+            
+        }
+    }
+    resultado[0]=carry;
+    *q_resultado=cant1+1;
+    
+    return resultado;
+}
+
+ushort * resta_digito_a_digito (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    ushort *resultado=NULL;
+    int carry=0,dif;
+    int i=0;
+    
+    dif=cant1-cant2;
+    
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(i=cant1-1;i>=0;i--)
+    {
+        if (i-dif<0)
+        {
+	    resultado[i]=valor_en_lista(dig1,i)-carry;
+            carry=0;
+	}
+        else if( (valor_en_lista(dig1,i) -carry )<(valor_en_lista(dig2,i-dif)))
+        {
+            resultado[i]=10+valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
+            if(carry==0) carry=carry+1;
+        }
+        else
+        {
+            resultado[i]=valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
+            carry=0;
+        }
+    }
+    *q_resultado=cant1;
+    return resultado;
+}
+
+ushort findCarry (ushort num)
+{
+    ushort i;
+    for(i=0;i<10;i++)
+    {
+        if((10*(i+1))>num)
+            break;
+    }
+    return i;
+}
+
+void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
+{
+    size_t j=0; 
+    bignumNodo_t *aux;
+    for(aux=(*lista);aux->sig!=NULL;aux=aux->sig)
+    {
+	if (j==i) break;
+	j++;
+
+    }
+    aux->val=num;
+}
+	
+void freeLista(bignumNodo_t **lista)
+{
+    if(!((*lista)->sig))
+	free(*lista);
+    else freeLista(&((*lista)->sig));
+}
+    
+
+bignumNodo_t * multiplico (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+{
+    bignumNodo_t ** res_matriz=NULL;
+    int i,k,j,cont=0;
+    int carry=0;
+    bignumNodo_t * resAux=NULL;
+    ushort * res=NULL;
+    ushort num;
+    if (!(  res_matriz = (bignumNodo_t**)malloc(sizeof(bignumNodo_t*)*(cant2))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(k=0;k<cant2;k++)
+    {
+        for(i=0;i<cant1+1+k;i++)
+	{
+		insertarNodoLista(&(res_matriz[k]),0,res_matriz[k]);
+	}
+    }
+    
+    k=0;
+    while(k<cant2)
+    {
+
+        for(j=cant2-1;j>=0;j--)
+        {
+            carry=0;
+            for(i=cant1-1;i>=0;i--)
+            {
+		num= ( valor_en_lista(dig2,j)*valor_en_lista(dig1,i) ) + carry;
+		              
+		if (num<=9) 
+		{
+			inserto_valor_en_lista(&(res_matriz[k]),num,i+1);		
+			carry=0;
+		}
+		else                
+		if (num>9)
+                {
+                    carry=findCarry(num);
+                    inserto_valor_en_lista(&(res_matriz[k]),num-10*carry,i+1);
+		
+                }
+            }
+            inserto_valor_en_lista(&(res_matriz[k]),carry,0);
+            k++;
+        }
+    }
+    
+    /* CREO LISTA resAux con cant1+cant2 ceros*/
+    for(i=0;i<cant1+2*cant2;i++) /*Lleno resAux con ceros para poder hacer la suma*/
+    {  
+    	insertarNodoLista(&(resAux),0,resAux);
+    }
+    for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
+    {
+        res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+        ++cont;
+
+	/*Paso res a una lista*/
+	for(i=0;i<cant1+cant2+cont;i++)
+	{
+	    num=res[i];
+	    insertarNodoLista(&(resAux),num,resAux);
+	}
+ 	
+        free(res);
+         
+    }
+    *q_resultado=cant1+cant2+cont;
+    
+    for(k=0;k<cant2;k++)
+    {
+	for(i=0;i<cant1+1+k;i++)
+	{        
+            freeLista(&(res_matriz[k]));
+	}
+    }
+    free(res_matriz);
+    
+    return resAux;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
+}
+
+
