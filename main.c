@@ -184,6 +184,8 @@ int main(int argc,char *argv[])
 
 
 
+
+
 /*###############################*/
 /*####### funciones #############*/
 void testLista(operationList_vector_t * oper_vect)
@@ -191,8 +193,9 @@ void testLista(operationList_vector_t * oper_vect)
     size_t precision=DEFAULT_PRECISION;
     size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+20";
-    char num2[]="+10";
+    char num1[]="+1419";
+    char num2[]="+566";
+		
     opt_t operation=SUMA;
     operation_status_t status=OK;
     
@@ -212,10 +215,12 @@ void testLista(operationList_vector_t * oper_vect)
     printf("segunda lista:\n");
     imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op2->digits);
     
-    
-    
+    oper_vect->operacionesList[oper_vect->operList_size]->rst=resta_digito_a_digito_List (oper_vect->operacionesList[oper_vect->operList_size]->op1->digits,oper_vect->operacionesList[oper_vect->operList_size]->op2->digits,4,3,&(oper_vect->operacionesList[oper_vect->operList_size]->q_rst));
+	printf("Res:\n");
+    //imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->rst);
 
-}
+    printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
+   
 
 void test(operation_vector_t * oper_vect)
 {
