@@ -272,13 +272,13 @@ ushort valor_en_lista(bignumNodo_t *dig,int i)
     return aux->val;
 }
 
-ushort * suma_digito_a_digito (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
 {
     size_t carry=0;
     ushort *resultado=NULL;
     int dif=cant1-cant2;
     int i;
-	
+
     if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1+1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
@@ -292,7 +292,7 @@ ushort * suma_digito_a_digito (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t can
             carry=0;
         }
         else
-            resultado[i+1]=valor_en_lista(dig1,i)+valor_en_lista(dig2,i)+carry;
+            resultado[i+1]=valor_en_lista(dig1,i)+valor_en_lista(dig2,i-dif)+carry;
         
         carry=0;
 
@@ -310,7 +310,7 @@ ushort * suma_digito_a_digito (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t can
     return resultado;
 }
 
-ushort * resta_digito_a_digito (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
 {
     ushort *resultado=NULL;
     int carry=0,dif;
@@ -332,12 +332,12 @@ ushort * resta_digito_a_digito (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t c
 	}
         else if( (valor_en_lista(dig1,i) -carry )<(valor_en_lista(dig2,i-dif)))
         {
-            resultado[i]=10+valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
-            if(carry==0) carry=carry+1;
+            resultado[i]=10+valor_en_lista(dig1,i)-carry-valor_en_lista(dig2,i-dif);
+            if(carry==0) carry++;
         }
         else
         {
-            resultado[i]=valor_en_lista(dig1,i)-valor_en_lista(dig2,i-dif);
+            resultado[i]=valor_en_lista(dig1,i)-carry-valor_en_lista(dig2,i-dif);
             carry=0;
         }
     }
@@ -345,16 +345,10 @@ ushort * resta_digito_a_digito (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t c
     return resultado;
 }
 
-ushort findCarry (ushort num)
-{
-    ushort i;
-    for(i=0;i<10;i++)
-    {
-        if((10*(i+1))>num)
-            break;
-    }
-    return i;
-}
+
+
+
+
 
 void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
 {
@@ -377,7 +371,7 @@ void freeLista(bignumNodo_t **lista)
 }
     
 
-bignumNodo_t * multiplico (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
     bignumNodo_t ** res_matriz=NULL;
     int i,k,j,cont=0;
