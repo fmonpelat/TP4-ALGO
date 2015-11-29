@@ -33,6 +33,7 @@
  bignumList_t *op2;
  opt_t op;
  ushort *rst;
+ 
  size_t q_rst;
  sign_t sign_rst;
  sign_t inf_rst;
@@ -244,7 +245,37 @@ void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterio
     
 }
 
+void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
+    
+    size_t i=0;
+    int flag_print=0;
 
+    
+    if (sign==NEGATIVE) printf("-");
+    
+    for (i=0; i<size ; i++)
+    {
+        if( (str[i]!=0) || (flag_print) )
+        {
+            if(i!=precision)
+            {
+                printf("%d",str[i]);
+                flag_print=1;
+            }
+            else
+            {
+                printf("\nOverflow\n");
+                break;
+            }
+            fflush(stdout);
+        }
+    }
+    if (!flag_print)
+    {
+        printf("0");
+    }
+    printf("\n");
+}
 
 void imprimirLista(bignumNodo_t * lista){
     
@@ -252,10 +283,10 @@ void imprimirLista(bignumNodo_t * lista){
         return;
     }
     if ( !(lista->sig) ) {
-        printf("%hu\n",lista->val);
+        printf("%hu",lista->val);
         return;
     }
-    printf("%hu\n",lista->val);
+    printf("%hu",lista->val);
     imprimirLista(lista->sig);
     
 }
@@ -347,9 +378,6 @@ ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, siz
 
 
 
-
-
-
 void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
 {
     size_t j=0; 
@@ -366,7 +394,10 @@ void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
 void freeLista(bignumNodo_t **lista)
 {
     if(!((*lista)->sig))
-	free(*lista);
+	{
+	    free(*lista);
+	    (*lista)=NULL;
+	}
     else freeLista(&((*lista)->sig));
 }
     
@@ -379,6 +410,7 @@ bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t ca
     bignumNodo_t * resAux=NULL;
     ushort * res=NULL;
     ushort num;
+	
     if (!(  res_matriz = (bignumNodo_t**)malloc(sizeof(bignumNodo_t*)*(cant2))))
     {
         fprintf(stderr, "Error, could not find memory\n");
@@ -391,8 +423,13 @@ bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t ca
 		insertarNodoLista(&(res_matriz[k]),0,res_matriz[k]);
 	}
     }
-    
-    k=0;
+   /* inserto_valor_en_lista(&(res_matriz[0]),8,0);
+    inserto_valor_en_lista(&(res_matriz[0]),8,1);
+    imprimirLista(res_matriz[0]);
+    freeLista(&(res_matriz[0]));
+    //freeLista(&(res_matriz[0]));
+    imprimirLista(res_matriz[0]);   
+    */k=0;
     while(k<cant2)
     {
 
@@ -401,6 +438,8 @@ bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t ca
             carry=0;
             for(i=cant1-1;i>=0;i--)
             {
+		
+			
 		num= ( valor_en_lista(dig2,j)*valor_en_lista(dig1,i) ) + carry;
 		              
 		if (num<=9) 
@@ -426,16 +465,20 @@ bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t ca
     {  
     	insertarNodoLista(&(resAux),0,resAux);
     }
+	imprimirLista(resAux);putchar('\n');
+    
+	//imprimirLista(res_matriz[0]);
     for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
-    {
-        res=suma_digito_a_digito(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+    {	
+	//printf("FAFAFFAFAFAFAFAF\n");        
+	res=suma_digito_a_digito_List(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
         ++cont;
-
+	
 	/*Paso res a una lista*/
 	for(i=0;i<cant1+cant2+cont;i++)
 	{
-	    num=res[i];
-	    insertarNodoLista(&(resAux),num,resAux);
+	   
+	    inserto_valor_en_lista(&(resAux),res[i],i);
 	}
  	
         free(res);
@@ -454,5 +497,4 @@ bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t ca
     
     return resAux;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
 }
-
 
