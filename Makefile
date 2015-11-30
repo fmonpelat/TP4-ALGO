@@ -1,11 +1,11 @@
 CC=gcc
 CFLAGS=-pedantic -Wall -g
-SOURCES=main.o bignum.o simplecalc.o bignumList.o
-EXECUTABLE=tp3
+SOURCES=main.o bignum.o simplecalc.o bignumList.o 
+EXECUTABLE=tp4
 
 all: $(EXECUTABLE)
 
-tp3: $(SOURCES)
+tp4: $(SOURCES)
 	$(CC) $(CFLAGS) $(SOURCES) -lm -o $(EXECUTABLE)
 
 main.o: main.c bignum.h
