@@ -191,8 +191,8 @@ void testLista(operationList_vector_t * oper_vect)
     size_t precision=DEFAULT_PRECISION;
     size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+100";  /* EL PROBLEMA ES: SI LOS PONGO AL REVES FALLA TODO */
-    char num2[]="+100";
+    char num1[]="+111";  /* EL PROBLEMA ES: SI LOS PONGO AL REVES FALLA TODO */
+    char num2[]="+111";
 		
     opt_t operation=SUMA;
     operation_status_t status=OK;
@@ -214,17 +214,17 @@ void testLista(operationList_vector_t * oper_vect)
     printf("segunda lista:\n");
     imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op2->digits);
     putchar('\n');
-    oper_vect->operacionesList[oper_vect->operList_size]->rstList=
+    oper_vect->operacionesList[oper_vect->operList_size]->rst=
 			multiplico_List (oper_vect->operacionesList[oper_vect->operList_size]->op1->digits,
 			oper_vect->operacionesList[oper_vect->operList_size]->op2->digits,
 			oper_vect->operacionesList[oper_vect->operList_size]->op1->q_digits,
 			oper_vect->operacionesList[oper_vect->operList_size]->op2->q_digits,
 			&(oper_vect->operacionesList[oper_vect->operList_size]->q_rst));
     printf("Res:\n");
-    imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->rstList);
-    putchar('\n');
-    //printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
-   
+    /*imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->rstList);
+    putchar('\n');*/
+    printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
+    
     
 
 }
