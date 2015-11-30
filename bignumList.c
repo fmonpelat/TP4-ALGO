@@ -303,6 +303,109 @@ ushort valor_en_lista(bignumNodo_t *dig,int i)
     return aux->val;
 }
 
+void sumaLista( operationList_vector_t *oper, size_t *size)
+{
+    size_t i;
+    ushort aux=0;
+
+    if(oper->operacionesList[*size]->op1->sign==NEGATIVE && oper->operacionesList[*size]->op2->sign==POSITIVE)
+    {
+        
+        if( oper->operacionesList[*size]->op1->q_digits > oper->operacionesList[*size]->op2->q_digits )
+        {
+            oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op1->digits,
+                                                                oper->operacionesList[*size]->op2->digits,
+                                                                oper->operacionesList[*size]->op1->q_digits,
+                                                                oper->operacionesList[*size]->op2->q_digits,
+                                                                &(oper->operacionesList[*size]->q_rst));
+            oper->operacionesList[*size]->sign_rst=NEGATIVE;
+            return;
+        }
+        else if(oper->operacionesList[*size]->op1->q_digits == oper->operacionesList[*size]->op2->q_digits)
+        {
+            for (i=0; i<oper->operacionesList[*size]->op1->q_digits; i++)
+            {
+                if ( valor_en_lista(oper->operacionesList[*size]->op1->digits,i)<valor_en_lista(oper->operacionesList[*size]->op2->digits,i) )
+                {
+                    oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op2->digits,
+                                                                        oper->operacionesList[*size]->op1->digits,
+                                                                        oper->operacionesList[*size]->op2->q_digits,
+                                                                        oper->operacionesList[*size]->op1->q_digits,
+                                                                        &(oper->operacionesList[*size]->q_rst));
+                    oper->operacionesList[*size]->sign_rst=POSITIVE;
+                    return;
+                }
+                if (valor_en_lista(oper->operacionesList[*size]->op1->digits,i)>valor_en_lista(oper->operacionesList[*size]->op2->digits,i) )
+                {
+                    oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op1->digits,
+                                                                        oper->operacionesList[*size]->op2->digits,
+                                                                        oper->operacionesList[*size]->op1->q_digits,
+                                                                        oper->operacionesList[*size]->op2->q_digits,
+                                                                        &(oper->operacionesList[*size]->q_rst));
+                    for (i=0; i<oper->operacionesList[*size]->q_rst; i++)
+                    {
+                        aux+=oper->operacionesList[*size]->rst[i];
+                    }
+                    if (!aux) oper->operacionesList[*size]->sign_rst=POSITIVE;
+                    else oper->operacionesList[*size]->sign_rst=NEGATIVE;
+                    return;
+
+                }
+            }
+        }
+        
+            
+    }
+    
+    
+    if ( oper->operacionesList[*size]->op1->q_digits < oper->operacionesList[*size]->op2->q_digits )
+    {
+        if(oper->operacionesList[*size]->op1->sign==NEGATIVE && oper->operacionesList[*size]->op2->sign==POSITIVE)
+        {
+            oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op2->digits,
+                                                                oper->operacionesList[*size]->op1->digits,
+                                                                oper->operacionesList[*size]->op2->q_digits,
+                                                                oper->operacionesList[*size]->op1->q_digits,
+                                                                &(oper->operacionesList[*size]->q_rst));
+            oper->operacionesList[*size]->sign_rst=POSITIVE;
+        }
+        else
+        {
+            oper->operacionesList[*size]->rst=suma_digito_a_digito(
+                                                               oper->operacionesList[*size]->op2->digits,
+                                                               oper->operacionesList[*size]->op1->digits,
+                                                               oper->operacionesList[*size]->op2->q_digits,
+                                                               oper->operacionesList[*size]->op1->q_digits,
+                                                               &(oper->operacionesList[*size]->q_rst) );
+            if (oper->operacionesList[*size]->op1->sign == NEGATIVE && oper->operacionesList[*size]->op2->sign == NEGATIVE)
+            {
+                oper->operacionesList[*size]->sign_rst=NEGATIVE;
+            }
+            else oper->operacionesList[*size]->sign_rst=POSITIVE;
+        }
+    }
+    else
+    {
+        oper->operacionesList[*size]->rst=suma_digito_a_digito(
+                                                           oper->operacionesList[*size]->op1->digits,
+                                                           oper->operacionesList[*size]->op2->digits,
+                                                           oper->operacionesList[*size]->op1->q_digits,
+                                                           oper->operacionesList[*size]->op2->q_digits,
+                                                           &(oper->operacionesList[*size]->q_rst) );
+        
+        
+        if (oper->operacionesList[*size]->op1->sign == NEGATIVE && oper->operacionesList[*size]->op2->sign == NEGATIVE)
+        {
+            oper->operacionesList[*size]->sign_rst=NEGATIVE;
+        }
+        else oper->operacionesList[*size]->sign_rst=POSITIVE;
+    }
+    
+    
+    
+}
+
+
 ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
 {
     size_t carry=0;
@@ -340,6 +443,63 @@ ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_
     
     return resultado;
 }
+
+void restaLista ( operationList_vector_t *oper, size_t *pos)
+{
+    size_t i;
+    
+    
+    if (oper->operacionesList[*pos]->op1->sign == NEGATIVE && oper->operacionesList[*pos]->op2->sign == NEGATIVE)
+    {
+        if ( oper->operacionesList[*pos]->op1->q_digits < oper->operacionesList[*pos]->op2->q_digits )
+        {
+            oper->operacionesList[*pos]->rst=suma_digito_a_digito(oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->q_digits, oper->operacionesList[*pos]->op1->q_digits, &(oper->operacionesList[*pos]->q_rst) );
+        }
+        else
+        {
+            oper->operacionesList[*pos]->rst=suma_digito_a_digito(oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->q_digits, oper->operacionesList[*pos]->op2->q_digits, &(oper->operacionesList[*pos]->q_rst) );
+        }
+        oper->operacionesList[*pos]->sign_rst=NEGATIVE;
+        return;
+    }
+    
+    if ( (oper->operacionesList[*pos]->op1->q_digits) > (oper->operacionesList[*pos]->op2->q_digits) )
+    {
+        oper->operacionesList[*pos]->rst = resta_digito_a_digito(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
+        oper->operacionesList[*pos]->sign_rst=POSITIVE;
+    }
+    else if((oper->operacionesList[*pos]->op1->q_digits)<(oper->operacionesList[*pos]->op2->q_digits))
+    {
+        oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
+        oper->operacionesList[*pos]->sign_rst=NEGATIVE;
+    }
+    
+    else
+    {
+        for (i=0; i<oper->operacionesList[*pos]->op1->q_digits; i++)
+        {
+            if ( valor_en_lista(oper->operacionesList[*pos]->op1->digits,i)<valor_en_lista(oper->operacionesList[*pos]->op2->digits,i) )
+            {
+                oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
+
+                oper->operacionesList[*pos]->sign_rst=NEGATIVE;
+                return;
+            }
+            if ( valor_en_lista(oper->operacionesList[*pos]->op1->digits,i)>valor_en_lista(oper->operacionesList[*pos]->op2->digits,i))
+            {
+                oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
+                
+                oper->operacionesList[*pos]->sign_rst=POSITIVE;
+                return;
+                
+            }
+        }
+
+    }
+    
+    
+}
+
 
 ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
 {
@@ -393,15 +553,41 @@ void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
 	
 void freeLista(bignumNodo_t **lista)
 {
-    if(!((*lista)->sig))
-	{
-	    free(*lista);
-	    (*lista)=NULL;
-	}
-    else freeLista(&((*lista)->sig));
+    bignumNodo_t *aux=NULL;
+    if(*lista)
+    {
+        aux=(*lista)->sig;
+        free(*lista);
+        (*lista)=NULL;
+        freeLista(&aux);
+    }
 }
-    
 
+void multiplicarLista(operationList_vector_t *oper, size_t *size)
+{
+    oper->operacionesList[*size]->rst = multiplico(oper->operacionesList[*size]->op1->digits,
+                                               oper->operacionesList[*size]->op2->digits,
+                                               oper->operacionesList[*size]->op1->q_digits,
+                                               oper->operacionesList[*size]->op2->q_digits,
+                                               &(oper->operacionesList[*size]->q_rst));
+   
+    if (oper->operacionesList[*size]->op1->sign==NEGATIVE && oper->operacionesList[*size]->op2->sign==NEGATIVE)
+    {
+        oper->operacionesList[*size]->sign_rst=POSITIVE;
+    }
+    else if(oper->operacionesList[*size]->op1->sign==NEGATIVE && oper->operacionesList[*size]->op2->sign==POSITIVE)
+    {
+        oper->operacionesList[*size]->sign_rst=NEGATIVE;
+    }
+    else if(oper->operacionesList[*size]->op1->sign==POSITIVE && oper->operacionesList[*size]->op2->sign==NEGATIVE)
+    {
+        oper->operacionesList[*size]->sign_rst=NEGATIVE;
+    }
+    else    oper->operacionesList[*size]->sign_rst=POSITIVE;
+    
+  
+  
+}
 ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
     bignumNodo_t ** res_matriz=NULL;
@@ -488,10 +674,7 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     
     for(k=0;k<cant2;k++)
     {
-	for(i=0;i<cant1+1+k;i++)
-	{        
-            freeLista(&(res_matriz[k]));
-	}
+	freeLista(&(res_matriz[k]));
     }
     free(res_matriz);
     /*Paso resAux a un vector de ushort*/
@@ -500,10 +683,8 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     {
 	res[i]=valor_en_lista(resAux,i);
     }
-    for(i=0;i<cant1+cant2+cont;i++)
-    {
-	freeLista(&resAux);
-    }
+    freeLista(&resAux);
     return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
 }
+
 

@@ -55,7 +55,7 @@ ushort * resta_digito_a_digito(ushort *, ushort *,size_t ,size_t , size_t*);
 ushort * suma_digito_a_digito(ushort * ,ushort * , size_t , size_t ,size_t *);
 void resta(operation_vector_t *, size_t *);
 void suma(operation_vector_t *, size_t *);
-ushort findCarry (ushort );
+ushort findCarry (ushort num);
 ushort *invertir(ushort *vector, size_t size);
 
 

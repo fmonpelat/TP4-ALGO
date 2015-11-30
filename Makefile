@@ -1,6 +1,6 @@
 CC=gcc
 CFLAGS=-pedantic -Wall -g
-SOURCES=main.o bignum.o simplecalc.o bignumList.o 
+SOURCES=main.o bignum.o simplecalc.o bignumList.o
 EXECUTABLE=tp4
 
 all: $(EXECUTABLE)
@@ -21,4 +21,4 @@ bignumList.o: bignumList.h bignumList.c
 	$(CC) $(CFLAGS) -c bignumList.c
 
 clean:
-	rm *.o tp3
+	rm *.o tp4

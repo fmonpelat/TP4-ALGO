@@ -69,47 +69,47 @@ int main(int argc,char *argv[])
     {
         
         /* Funcion de Prubas comentar todo abajo de esto salvo los frees*/
-         testLista(&operaciones_vect);
+         /*testLista(&operaciones_vect);*/
         
-        /*
+        
         inicializarStructOperation(&operaciones_vect);
         
         while (statusLine!=_EOF)
         {
             
             input=GetLines();
-            operaciones_vect.oper_size++;
-            if(operaciones_vect.oper_size!=0) AddOperation(&operaciones_vect);
+            operaciones_vect.operList_size++;
+            if(operaciones_vect.operList_size!=0) AddOperation(&operaciones_vect);
             
-            statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
+            statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op) );
             
-            status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
-                                                &(operaciones_vect.oper_size),
-                                                &(operaciones_vect.oper_size),
+            status_cargado=cargarStructNumeros(operaciones_vect.operacionesList,
+                                                &(operaciones_vect.operList_size),
+                                                &(operaciones_vect.operList_size),
                                                 num1,
                                                 num2,
-                                                &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op),
+                                                &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op),
                                                 precision,
                                                 statusLine
                                                 );
             
         
-                switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op)
+                switch (operaciones_vect.operacionesList[operaciones_vect.operList_size]->op)
                 {
                     case SUMA:
-                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
+                                sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
+                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
                                 break;
                     case RESTA:
-                                resta(&operaciones_vect, &(operaciones_vect.oper_size) );
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
+                                restaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
+                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
                                 break;
                     case MULT:
-                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size));
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
+                                multiplicarLista(&operaciones_vect, &(operaciones_vect.operList_size));
+                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
                                 break;
                     case NOOPERATION:
-                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
+                                sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
                                 break;
                     default:
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
@@ -129,7 +129,7 @@ int main(int argc,char *argv[])
         
         
         
-        /* liberamos memoria
+         //liberamos memoria
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
@@ -139,28 +139,28 @@ int main(int argc,char *argv[])
         num2=NULL;
         
         
-        for (i=0; i<operaciones_vect.oper_size+1; i++)
+        for (i=0; i<operaciones_vect.operList_size+1; i++)
         {
-            free( operaciones_vect.operaciones[i]->op1->digits);
-            operaciones_vect.operaciones[i]->op1->digits=NULL;
-            free( operaciones_vect.operaciones[i]->op2->digits);
-            operaciones_vect.operaciones[i]->op2->digits=NULL;
-            free( operaciones_vect.operaciones[i]->op1);
-            operaciones_vect.operaciones[i]->op1=NULL;
-            free( operaciones_vect.operaciones[i]->op2);
-            operaciones_vect.operaciones[i]->op2=NULL;
-            free( operaciones_vect.operaciones[i]->rst);
-            operaciones_vect.operaciones[i]->rst=NULL;
+            freeLista( operaciones_vect.operacionesList[i]->op1->digits);
+            operaciones_vect.operacionesList[i]->op1->digits=NULL;
+            freeLista( operaciones_vect.operacionesList[i]->op2->digits);
+            operaciones_vect.operacionesList[i]->op2->digits=NULL;
+            freeLista( operaciones_vect.operacionesList[i]->op1);
+            operaciones_vect.operacionesList[i]->op1=NULL;
+            freeLista( operaciones_vect.operacionesList[i]->op2);
+            operaciones_vect.operacionesList[i]->op2=NULL;
+            freeLista( operaciones_vect.operacionesList[i]->rst);
+            operaciones_vect.operacionesList[i]->rst=NULL;
         }
         
-        for (i=0; i<operaciones_vect.oper_size+1; i++)
+        for (i=0; i<operaciones_vect.operList_size+1; i++)
         {
-            free(operaciones_vect.operaciones[i]);
-            operaciones_vect.operaciones[i]=NULL;
+            free(operaciones_vect.operacionesList[i]);
+            operaciones_vect.operacionesList[i]=NULL;
         }
-        free(operaciones_vect.operaciones);
-        operaciones_vect.operaciones=NULL;
-    */
+        free(operaciones_vect.operacionesList);
+        operaciones_vect.operacionesList=NULL;
+    
         
     }
     else if( calcmode==SIMPLECALC )
@@ -191,7 +191,7 @@ void testLista(operationList_vector_t * oper_vect)
     size_t precision=DEFAULT_PRECISION;
     size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+111";  /* EL PROBLEMA ES: SI LOS PONGO AL REVES FALLA TODO */
+    char num1[]="+111";  
     char num2[]="+111";
 		
     opt_t operation=SUMA;
@@ -221,8 +221,6 @@ void testLista(operationList_vector_t * oper_vect)
 			oper_vect->operacionesList[oper_vect->operList_size]->op2->q_digits,
 			&(oper_vect->operacionesList[oper_vect->operList_size]->q_rst));
     printf("Res:\n");
-    /*imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->rstList);
-    putchar('\n');*/
     printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
     
     
@@ -735,6 +733,7 @@ char * prependChar(const char * str, char c)
     }
     return string;
 }
+
 
 
 
