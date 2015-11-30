@@ -38,7 +38,6 @@ typedef struct operationList {
     bignumList_t *op2;
     opt_t op;
     ushort *rst;
-    bignumNodo_t *rstList;
     size_t q_rst;
     sign_t sign_rst;
     sign_t inf_rst;
@@ -62,7 +61,7 @@ operation_status_t inicializarStructOperationList(operationList_vector_t * oper 
 void imprimirLista(bignumNodo_t * lista);
 ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
 ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
-bignumNodo_t * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado);
+ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado);
 
 void freeLista(bignumNodo_t **lista);
 void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i);
