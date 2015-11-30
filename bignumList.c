@@ -1,395 +1,228 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-#include <time.h>
-#include <math.h>
-#include <string.h>
-#include "bignum.h"
-#include "simplecalc.h"
+//
+//  bignumList.c
+//  Tp4
+//
+//  Created by fmonpelat on 11/25/15.
+//  Copyright (c) 2015 ___FMONPELAT___. All rights reserved.
+//
+
 #include "bignumList.h"
 
-/* Defines para supercalc */
-#define MAX_STR 10
-#define VALID_ARGUMENTS 2 /* argumentos de entrada por parametro 1-> nombre del programa 2-> modo del programa (simplecalc o supercalc)*/
-#define DEFAULT_PRECISION 1000
-#define INPUT_MODE_SIMPLECALC "simpleCalc"
-#define INPUT_MODE_SUPERCALC "superCalc"
+/*
+ typedef struct bignumNodo {
+ 
+ unsigned short val;
+ struct bignumNodo *sig;
+ struct bignumNodo *ant;
+ 
+ } bignumNodo_t;
+ 
+ 
+ typedef struct bignumLis {
+ 
+ bignumNodo_t *digits;
+ size_t q_digits;
+ sign_t sign ;
+ sign_t inf;
+ 
+ } bignumList_t;
+ 
+ typedef struct operationList {
+ 
+ bignumList_t *op1;
+ bignumList_t *op2;
+ opt_t op;
+ ushort *rst;
+ 
+ size_t q_rst;
+ sign_t sign_rst;
+ sign_t inf_rst;
+ result_state_t st;
+ 
+ } operationList_t;
+ 
+ typedef struct operationList_vector  {
+ 
+ operationList_t **operacionesList;
+ size_t operList_size;
+ 
+ } operationList_vector_t;
 
-/* typedef de supercalc */
-typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
+*/
 
-
-
-/*##### PROTOTIPOS #########*/
-
-void paso_linea_a_struct( char *, operation_t **, int );
-char * GetLines( void );
-operation_status_t parseLines( char ** ,char ** , char **, opt_t * );
-char * searchEnter(char * );
-char * prependChar(const char * , char );
-operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * ,char **,char **);
-void test(operation_vector_t * );
-void testLista(operationList_vector_t * oper_vect);
-
-
-/*#########################*/
-
-
-
-int main(int argc,char *argv[])
-{
-    calcMode_t calcmode=SIMPLECALC; /* por default hacemos que sea simpleCalc */
-    /* simpleCalc */
-    int opt;
-    char * output=NULL;
+operation_status_t inicializarStructOperationList(operationList_vector_t * oper ){
     
-    /* superCalc */
-    operationList_vector_t operaciones_vect;
-    char *num1=NULL;
-    char *num2=NULL;
-    char *input=NULL;
-    operation_status_t statusLine=OK;
-    size_t precision=DEFAULT_PRECISION;
-    operation_status_t status_cargado=ERROR;
-    size_t i=0;
-
+    operationList_t **ppAux=NULL;
+    operationList_t *pAux;
+    oper->operacionesList=NULL;
+    oper->operList_size=0;
     
-    if (argc<VALID_ARGUMENTS)
+    
+    if ( !(ppAux=(operationList_t **)realloc(oper->operacionesList,( sizeof(operationList_t*)) ) )  )
     {
-        fprintf(stderr, "Modo invalido de invocacion\n");
-        fprintf(stderr, "Se debe de invocar como $%s <mode> -p <precision>\n",argv[0]);
-        fprintf(stderr, "<mode> : modo de la calculadora %s o %s\n",INPUT_MODE_SIMPLECALC,INPUT_MODE_SUPERCALC);
-        fprintf(stderr, "<precision> : precision del calculo antes de truncar ( Default: %d )\n",DEFAULT_PRECISION);
-        return EXIT_FAILURE;
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
     }
     
-    ValidateArguments(argc,argv,&precision,&calcmode,&output,&input);
+    (oper->operacionesList)=ppAux;
     
-    if ( calcmode==SUPERCALC )
+    if (!(pAux=(operationList_t *)malloc(sizeof(operationList_t) )) ) {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    oper->operacionesList[0]=pAux;
+    
+    
+    /* pido memoria para cada bignum_t */
+    if( !(oper->operacionesList[0]->op1=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
     {
-        
-        /* Funcion de Prubas comentar todo abajo de esto salvo los frees*/
-         testLista(&operaciones_vect);
-        
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    if( !(oper->operacionesList[0]->op2=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    /* inicializamos la lista de digitos */
+    oper->operacionesList[0]->op1->digits=NULL;
+    oper->operacionesList[0]->op2->digits=NULL;
+    oper->operacionesList[0]->op=NOOPERATION;
+    oper->operList_size=0;
+    
+    
+    return OK;
+}
+
+
+operation_status_t AddOperationList(operationList_vector_t *oper){
+    
+    operationList_t **ppAux=NULL;
+    operationList_t *pAux;
+    
+    
+    if ( !(ppAux=(operationList_t **)realloc(oper->operacionesList,(sizeof(operationList_t*) * (oper->operList_size+1) ) ) )  )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    (oper->operacionesList)=ppAux;
+    
+    if (!(pAux=(operationList_t *)malloc(sizeof(operationList_t) )) ) {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    oper->operacionesList[oper->operList_size]=pAux;
+    
+    
+    /* pido memoria para cada bignum_t */
+    if( !(oper->operacionesList[0]->op1=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    if( !(oper->operacionesList[0]->op2=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    
+    /* inicializamos la lista de digitos */
+    oper->operacionesList[oper->operList_size]->op1->digits=NULL;
+    oper->operacionesList[oper->operList_size]->op2->digits=NULL;
+    
+    
+    oper->operacionesList[oper->operList_size]->op=NOOPERATION;
+    
+    return OK;
+}
+
+
+
+operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision,operation_status_t status)
+{
+    
+    size_t size_num1=0;
+    size_t size_num2=0;
+    size_t i=0;
+    
+    size_num1=strlen(num1);
+    size_num2=strlen(num2);
+    
+    /* corroboracion para no pasarnos del array */
+    if ( (*pos)>(*size) ) return ERROR;
+    
+    
+    /* hay que llamar a la funcion de insertarNodo
+    
+    if( !( oper[*pos]->op1->digits=(ushort *)malloc( sizeof(ushort)*(size_num1-1)) ) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+    if( !(oper[*pos]->op2->digits=(ushort *)malloc(sizeof(ushort)*(size_num2-1))) )
+    {
+        fprintf(stderr, "no memory \n");
+        return NOMEM;
+    }
+     */
+    
+    if (num1[0]=='-') {
+        oper[*pos]->op1->sign=NEGATIVE;
+    }
+    else if (num1[0]=='+') {
+        oper[*pos]->op1->sign=POSITIVE;
+    }
+    else oper[*pos]->op1->sign=POSITIVE;
+    
+    if (num2[0]=='-') {
+        oper[*pos]->op2->sign=NEGATIVE;
+    }
+    else if (num2[0]=='+') {
+        oper[*pos]->op2->sign=POSITIVE;
+    }
+    else oper[*pos]->op2->sign=POSITIVE;
+    
+    
+    /* Empezamos de 1 porque nos comemos el caracter de signo que se lo asignamos arriba */
+    for (i=1; i<size_num1; i++)
+    {
+        insertarNodoLista(&(oper[*pos]->op1->digits), (ushort)(num1[i] - '0'), oper[*pos]->op1->digits);
+        /* hay que llamar a insertar nodo
+         oper[*pos]->op1->digits[i-1]=(ushort)(num1[i] - '0');
+         */
+    }
+    for (i=1; i<size_num2; i++)
+    {
+        insertarNodoLista(&(oper[*pos]->op2->digits), (ushort)(num2[i] - '0'), oper[*pos]->op2->digits);
         /*
-        inicializarStructOperation(&operaciones_vect);
-        
-        while (statusLine!=_EOF)
-        {
-            
-            input=GetLines();
-            operaciones_vect.oper_size++;
-            if(operaciones_vect.oper_size!=0) AddOperation(&operaciones_vect);
-            
-            statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op) );
-            
-            status_cargado=cargarStructNumeros(operaciones_vect.operaciones,
-                                                &(operaciones_vect.oper_size),
-                                                &(operaciones_vect.oper_size),
-                                                num1,
-                                                num2,
-                                                &(operaciones_vect.operaciones[operaciones_vect.oper_size]->op),
-                                                precision,
-                                                statusLine
-                                                );
-            
-        
-                switch (operaciones_vect.operaciones[operaciones_vect.oper_size]->op)
-                {
-                    case SUMA:
-                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                                break;
-                    case RESTA:
-                                resta(&operaciones_vect, &(operaciones_vect.oper_size) );
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                                break;
-                    case MULT:
-                                multiplicar(&operaciones_vect, &(operaciones_vect.oper_size));
-                                printArrayShort(operaciones_vect.operaciones[operaciones_vect.oper_size]->rst, operaciones_vect.operaciones[operaciones_vect.oper_size]->q_rst,operaciones_vect.operaciones[operaciones_vect.oper_size]->sign_rst,precision);
-                                break;
-                    case NOOPERATION:
-                                suma(&operaciones_vect, &(operaciones_vect.oper_size) );
-                                break;
-                    default:
-                        fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
-                        break;
-                }
-                free(input);
-                free(num1);
-                free(num2);
-                input=NULL;
-                num1=NULL;
-                num2=NULL;
-            }
-            if(status_cargado==INF)
-            {
-                printf("Inf\n");
-            }
-        
-        
-        
-        /* liberamos memoria
-        //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
-        free(input);
-        free(num1);
-        free(num2);
-        input=NULL;
-        num1=NULL;
-        num2=NULL;
-        
-        
-        for (i=0; i<operaciones_vect.oper_size+1; i++)
-        {
-            free( operaciones_vect.operaciones[i]->op1->digits);
-            operaciones_vect.operaciones[i]->op1->digits=NULL;
-            free( operaciones_vect.operaciones[i]->op2->digits);
-            operaciones_vect.operaciones[i]->op2->digits=NULL;
-            free( operaciones_vect.operaciones[i]->op1);
-            operaciones_vect.operaciones[i]->op1=NULL;
-            free( operaciones_vect.operaciones[i]->op2);
-            operaciones_vect.operaciones[i]->op2=NULL;
-            free( operaciones_vect.operaciones[i]->rst);
-            operaciones_vect.operaciones[i]->rst=NULL;
-        }
-        
-        for (i=0; i<operaciones_vect.oper_size+1; i++)
-        {
-            free(operaciones_vect.operaciones[i]);
-            operaciones_vect.operaciones[i]=NULL;
-        }
-        free(operaciones_vect.operaciones);
-        operaciones_vect.operaciones=NULL;
-    */
-        
-    }
-    else if( calcmode==SIMPLECALC )
-    {
-        
-        /* modo calculadora simple */
-        printf(MENU);
-        scanf("%d",&opt);
-        opcion(opt,output);
-        return 0;
-
+        oper[*pos]->op2->digits[i-1]=(ushort)(num2[i] - '0');
+         */
     }
     
+    /* Agregamos q digits para saber hasta donde debemos iterar */
+    oper[*pos]->op1->q_digits=size_num1-1;
+    oper[*pos]->op2->q_digits=size_num2-1;
     
-    return 0;
-}
-
-
-
-
-
-
-
-/*###############################*/
-/*####### funciones #############*/
-void testLista(operationList_vector_t * oper_vect)
-{
-    size_t precision=DEFAULT_PRECISION;
-    size_t i=0;
-    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+111";  /* EL PROBLEMA ES: SI LOS PONGO AL REVES FALLA TODO */
-    char num2[]="+111";
-		
-    opt_t operation=SUMA;
-    operation_status_t status=OK;
+    /* agregamos la operacion a efectuar */
+    oper[*pos]->op=*operation;
     
-    inicializarStructOperationList(oper_vect);
+    oper[*pos]->op1->inf=NEGATIVE;
+    oper[*pos]->op2->inf=NEGATIVE;
     
-    cargarStructNumerosList(&(oper_vect->operacionesList[oper_vect->operList_size]),
-                            &(oper_vect->operList_size),
-                            &(oper_vect->operList_size),
-                            num1,
-                            num2,
-                            &operation,
-                            precision,
-                            status);
-    
-    printf("primera lista:\n");
-    imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op1->digits);
-    putchar('\n');
-    printf("segunda lista:\n");
-    imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->op2->digits);
-    putchar('\n');
-    oper_vect->operacionesList[oper_vect->operList_size]->rst=
-			multiplico_List (oper_vect->operacionesList[oper_vect->operList_size]->op1->digits,
-			oper_vect->operacionesList[oper_vect->operList_size]->op2->digits,
-			oper_vect->operacionesList[oper_vect->operList_size]->op1->q_digits,
-			oper_vect->operacionesList[oper_vect->operList_size]->op2->q_digits,
-			&(oper_vect->operacionesList[oper_vect->operList_size]->q_rst));
-    printf("Res:\n");
-    /*imprimirLista(oper_vect->operacionesList[oper_vect->operList_size]->rstList);
-    putchar('\n');*/
-    printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
-    
-    
-
-}
-
-void test(operation_vector_t * oper_vect)
-{
-    
-    size_t precision=DEFAULT_PRECISION;
-    size_t i=0;
-    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+20";
-    char num2[]="+10";
-    opt_t operation=MULT;
-    operation_status_t status=OK;
-    
-    /*
-    inicializarStructOperation(oper_vect);
-    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    */
-    
-    /*probamos las funciones una por una */
-    
-    /* Prueba de resta_digito_a_digito() probar con los numeros siguientes num1 > num2 en caracteres
-       char num1[]="+40";
-       char num2[]="+2";
-    
-    opt_t operation=RESTA;
-    
-    oper_vect->operaciones[oper_vect->oper_size]->rst = resta_digito_a_digito(
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                              &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    */
-    
-    
-    /* Prueba de resta()
-    resta(oper_vect, &(oper_vect->oper_size));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    resta(oper_vect, &(oper_vect->oper_size));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-    /* Prueba de suma_digito_a_digito() (no funciona si el primer op1 tiene mas caracteres que el op2 se llama a suma para contrarestar este problema.)
-     oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                             &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-     oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-     oper_vect->op
-    */
-    
-    /* Prueba de suma()
-
-    suma( oper_vect, &(oper_vect->oper_size) );
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    suma( oper_vect, &(oper_vect->oper_size) );
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-    /* Prueba de Multiplicacion
-    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                   &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-}
-
-
-
-operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode, char ** output,char **input)
-{
-    
-    size_t i=0;
-    
-    
-    for (i=1; i<argc; i++)
-    {
-        if ( !(strcmp(argv[i],INPUT_MODE_SIMPLECALC)) )
-        {
-            *mode=SIMPLECALC;
-            break;
-        }
-        else if( !(strcmp(argv[i],INPUT_MODE_SUPERCALC)) )
-        {
-            *mode=SUPERCALC;
-            break;
-        }
-
+    /* preguntamos si excedemos la precision */
+    if (oper[*pos]->op1->q_digits>precision) {
+        oper[*pos]->op1->inf=POSITIVE;
+        return INF;
     }
-    for (i=1; i<argc; i++)
-    {
-        if (!(strcmp(argv[i],"-p")))
-        {
-            *precision=atoi(argv[i+1]);
-            if (!*precision) *precision=DEFAULT_PRECISION;
-        }
-        if (!(strcmp(argv[i],"-output")))
-        {
-            *output=argv[i+1];
-        }
-        if (!(strcmp(argv[i],"-input")))
-        {
-            *input=argv[i+1];
-        }
-
-        
+    if (oper[*pos]->op2->q_digits>precision) {
+        oper[*pos]->op2->inf=POSITIVE;
+        return INF;
     }
+    
+    if(status==_EOF) return ERROR;
     
     return OK;
     
@@ -397,348 +230,280 @@ operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calc
 
 
 
+void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterior){
+    
+    //bignumNodo_t * auxLista=NULL;
+    
+    if (!*lista) {
+        (*lista)=(bignumNodo_t*)malloc( sizeof(bignumNodo_t) );
+        (*lista)->val=valor;
+        (*lista)->sig=NULL;
+        (*lista)->ant=anterior;
+        
+    }
+    else insertarNodoLista(&((*lista)->sig), valor,*lista/*Creo que este parámetro está mal, no va (*lista)->sig ??*/);
+    
+}
 
+void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
+    
+    size_t i=0;
+    int flag_print=0;
 
-char * GetLines( void )
+    
+    if (sign==NEGATIVE) printf("-");
+    
+    for (i=0; i<size ; i++)
+    {
+        if( (str[i]!=0) || (flag_print) )
+        {
+            if(i!=precision)
+            {
+                printf("%d",str[i]);
+                flag_print=1;
+            }
+            else
+            {
+                printf("\nOverflow\n");
+                break;
+            }
+            fflush(stdout);
+        }
+    }
+    if (!flag_print)
+    {
+        printf("0");
+    }
+    printf("\n");
+}
+
+void imprimirLista(bignumNodo_t * lista){
+    
+    if ( lista == NULL ) {
+        return;
+    }
+    if ( !(lista->sig) ) {
+        printf("%hu",lista->val);
+        return;
+    }
+    printf("%hu",lista->val);
+    imprimirLista(lista->sig);
+    
+}
+
+ushort valor_en_lista(bignumNodo_t *dig,int i)
 {
-    
+    size_t j=0;
+    bignumNodo_t *aux=NULL;
+    for(aux=dig;aux->sig!=NULL;aux=aux->sig)
+    {
+	if(j==i) break;
+	j++;
+    }
+    return aux->val;
+}
 
-    char lines[MAX_STR];
-    char *totalLines=NULL;
-    char *aux=NULL;
-    /* como pedimos memoria esta hardcodeado de a init chop chars por llamada */
-    size_t used_size = 0;
-    size_t alloc_size = 0, init_chop = MAX_STR, chop_size = MAX_STR*2;
-    size_t counterMemoryCallouts=0;
+ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
+{
+    size_t carry=0;
+    ushort *resultado=NULL;
+    int dif=cant1-cant2;
+    int i;
 
-    
-    /* pedimos memoria por primera vez antes de reallocar si es que necesitamos memoria.
-     */
-    if (!(totalLines = (char*)calloc(init_chop,sizeof(char))))
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1+1))))
     {
         fprintf(stderr, "Error, could not find memory\n");
         return NULL;
     }
-    
-    
-    alloc_size = init_chop;
-    
-    
-    while ( !(searchEnter( lines )) )
+    for(i=cant1-1;i>=0;i--)
     {
-        fgets(lines, MAX_STR, stdin);
+        if(i-dif<0)
+        {
+            resultado[i+1]=valor_en_lista(dig1,i)+carry;
+            carry=0;
+        }
+        else
+            resultado[i+1]=valor_en_lista(dig1,i)+valor_en_lista(dig2,i-dif)+carry;
         
-        
-        /* nos preguntamos si necesitamos memoria ... pedimos de a chops o de a pedazos
-         */
-        if (used_size == alloc_size)
+        carry=0;
+
+        if(resultado[i+1]>9)
         {
             
-            if (!(aux = (char*)realloc(totalLines, sizeof(char)*(alloc_size + chop_size))))
-            {
-                fprintf(stderr, "Error, could not find memory\n");
-                free(totalLines);
-                totalLines = NULL;
-                return NULL;
-            }
-            totalLines = aux;
-            alloc_size += chop_size; /* incremento en suma o escalonada */
-            counterMemoryCallouts++;
-            /* debugging alloc size callouts
-            printf("counter:%lu alloc:%lu chop_size:%lu\n",counterMemoryCallouts,alloc_size,chop_size);*/
-             
-        }
-        /* concatenamos line con totallines para obtener el string final */
-        strcat(totalLines, lines);
-        /* incrementamos en MAX_STR el used size asi si nos falta obtener del stdin pedimos memoria */
-        used_size=used_size+MAX_STR;
-        /* debug totallines printf("%s\n",totalLines); */
-    }
-    /* quitamos el \n y hacemos null terminated string */
-    totalLines[strlen(totalLines)-1]='\0';
-    
-    return totalLines;
-    
-}
-
-operation_status_t parseLines( char **totalLines,char **line1, char **line2,opt_t *operation)
-{
-    
-    char *ptr;
-    char *ptr2;
-    size_t i; /*contador para parsear con strtok*/
-    
-    
-    if ( strcmp(*totalLines,"#calculate") )
-    {
-        /* Aca calculo como separar las cadenas de caracteres en line1 y line2 */
-        
-            if (*totalLines[0]=='*')
-            {
-                return ERROR;
-            }
-            else if ( *totalLines[0]=='+')
-            {
-                
-                /* que pasa si no hay un - o un + en el medio? */
-                for (i=1; i<strlen(*totalLines); i++)
-                {
-                    if ( !(isdigit((*totalLines)[i])) )
-                    {
-                        
-                        if ((*totalLines)[i]=='-')
-                        {
-                            ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
-                            ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                            *line1=prependChar(ptr,'#');
-                            *line2=prependChar(ptr2, '-');
-                            *operation=RESTA;
-                            return OK;
-                        }
-                        
-                        if ((*totalLines)[i]=='+')
-                        {
-                            ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                            ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                            /**(searchEnter(ptr2))='\0';*/
-                            *line1=prependChar(ptr,'#');
-                            *line2=prependChar(ptr2,'+');
-                            *operation=SUMA;
-                            return OK;
-                        }
-                    }
-                }
-                ptr=NULL; /* si llegamos hasta aca es porque no se ingreso una operacion */
-            }
-            else if (*totalLines[0]=='-' ) {
-                
-                /* que pasa si no hay un - o un + en el medio? */
-                for (i=1; i<strlen(*totalLines); i++)
-                {
-                    if ( !(isdigit((*totalLines)[i])) )
-                    {
-                        
-                        if ((*totalLines)[i]=='-')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                            ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
-                            ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                            *line1=prependChar(ptr, '-');
-                            *line2=prependChar(ptr2, '+');
-                            *operation=SUMA;
-                            return OK;
-                            }
-                            else
-                            {
-                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr, '-');
-                                *line2=prependChar(ptr2, '-');
-                                *operation=RESTA;
-                                return OK;
-                            }
-                                
-                        }
-                        
-                        if ((*totalLines)[i]=='+')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                /**line1=prependChar(ptr, '-');
-                                *line2=prependChar(ptr2, '-');*/
-                                *line1=prependChar(ptr,'#');
-                                *line2=prependChar(ptr2,'#');
-                                *operation=SUMA;
-                                return OK;
-                            }
-                            else
-                            {
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'#');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=SUMA;
-                                return OK;
-                            }
-                        }
-                        if ((*totalLines)[i]=='*')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
-                                /*line1=prependChar(ptr, '-');
-                                *line2=prependChar(ptr2, '-');*/
-                                *line1=prependChar(ptr,'#');
-                                *line2=prependChar(ptr2,'#');
-                                *operation=MULT;
-                                return OK;
-                            }
-                            else
-                            {
-                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
-                                /**line1=prependChar(ptr, '-');*/
-                                *line1=prependChar(ptr,'#');
-                                *line2=prependChar(ptr2, '+');
-                                *operation=MULT;
-                                return OK;
-                            }
-                        }
-                    }
-                }
-                ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
-            }
-            else
-            {
-                for (i=1; i<strlen(*totalLines); i++)
-                {
-                    if ( !(isdigit((*totalLines)[i])) )
-                    {
-                        if ((*totalLines)[i]=='-')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001--222 */
-                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=SUMA;
-                                return OK;
-                            }
-                            else
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001-222 */
-                                ptr=strtok(*totalLines,"-"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=RESTA;
-                                return OK;
-
-                            }
-                        }
-                        
-                        if ((*totalLines)[i]=='+')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001+-222 */
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'-');
-                                *operation=RESTA;
-                                return OK;
-                            }
-                            else if((*totalLines)[i+1]=='+')
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001++222 */
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=SUMA;
-                                return OK;
-
-                            }
-                            else
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001+222 */
-                                ptr=strtok(*totalLines,"+"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=SUMA;
-                                return OK;
-                            }
-                        }
-                        
-                        if ((*totalLines)[i]=='*')
-                        {
-                            if ((*totalLines)[i+1]=='-')
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001*-222 */
-                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"-"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'-');
-                                *operation=MULT;
-                                return OK;
-                            }
-                            else if((*totalLines)[i+1]=='+')
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 001*+222 */
-                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"+"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=MULT;
-                                return OK;
-                                
-                            }
-                            else
-                            {
-                                /* si llegamos hasta aca quiere decir que se ingreso algo como 10*3 */
-                                ptr=strtok(*totalLines,"*"); /* con esto nos saltemaos el primer caracter */
-                                ptr2=strtok(NULL,"*"); /* este es nuestro primer numero */
-                                *line1=prependChar(ptr,'+');
-                                *line2=prependChar(ptr2,'+');
-                                *operation=MULT;
-                                return OK;
-                            }
-                        }
-                    }
-                }
-                ptr=NULL; /* Si llegamos hasta aca es porque no se ingreso una operacion */
-            }
-
-        if (!ptr) return _EOF;
-    }
-    else
-    {
-        *line1=prependChar("00",'+');
-        *line2=prependChar("00",'+');
-        *operation=NOOPERATION;
-        return _EOF;
-    }
-    
-    return OK;
-}
-
-
-char * searchEnter(char *str ){
-    size_t i;
-    for (i=0; i<strlen(str)+1; i++) {
-        if (str[i]=='\n') {
-            return str+i;
+            resultado[i+1]=resultado[i+1]-10;
+            carry++;
+            
         }
     }
-    return NULL;
+    resultado[0]=carry;
+    *q_resultado=cant1+1;
+    
+    return resultado;
 }
 
-char * prependChar(const char * str, char c)
+ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado)
 {
-    char * string = (char *)calloc( strlen(str)+2,sizeof(char) ); /* añadimos 2 posiciones una para el caracter y otra para el \0 */
-    if(c!='#')
+    ushort *resultado=NULL;
+    int carry=0,dif;
+    int i=0;
+    
+    dif=cant1-cant2;
+    
+    if (!(resultado = (ushort*)malloc(sizeof(ushort)*(cant1))))
     {
-        string[0] = c;
-        strcpy(string + 1, str);
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
     }
-    else
+    for(i=cant1-1;i>=0;i--)
     {
-        strcpy(string, str);
+        if (i-dif<0)
+        {
+	    resultado[i]=valor_en_lista(dig1,i)-carry;
+            carry=0;
+	}
+        else if( (valor_en_lista(dig1,i) -carry )<(valor_en_lista(dig2,i-dif)))
+        {
+            resultado[i]=10+valor_en_lista(dig1,i)-carry-valor_en_lista(dig2,i-dif);
+            if(carry==0) carry++;
+        }
+        else
+        {
+            resultado[i]=valor_en_lista(dig1,i)-carry-valor_en_lista(dig2,i-dif);
+            carry=0;
+        }
     }
-    return string;
+    *q_resultado=cant1;
+    return resultado;
 }
 
 
 
+void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
+{
+    size_t j=0; 
+    bignumNodo_t *aux;
+    for(aux=(*lista);aux->sig!=NULL;aux=aux->sig)
+    {
+	if (j==i) break;
+	j++;
 
+    }
+    aux->val=num;
+}
+	
+void freeLista(bignumNodo_t **lista)
+{
+    if(!((*lista)->sig))
+	{
+	    free(*lista);
+	    (*lista)=NULL;
+	}
+    else freeLista(&((*lista)->sig));
+}
+    
 
+ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
+{
+    bignumNodo_t ** res_matriz=NULL;
+    int i,k,j,cont=0;
+    int carry=0;
+    bignumNodo_t * resAux=NULL;
+    ushort * res=NULL;
+    ushort num;
+	
+    if (!(  res_matriz = (bignumNodo_t**)malloc(sizeof(bignumNodo_t*)*(cant2))))
+    {
+        fprintf(stderr, "Error, could not find memory\n");
+        return NULL;
+    }
+    for(k=0;k<cant2;k++)
+    {
+        for(i=0;i<cant1+1+k;i++)
+	{
+		insertarNodoLista(&(res_matriz[k]),0,res_matriz[k]);
+	}
+    }
+   /* inserto_valor_en_lista(&(res_matriz[0]),8,0);
+    inserto_valor_en_lista(&(res_matriz[0]),8,1);
+    imprimirLista(res_matriz[0]);
+    freeLista(&(res_matriz[0]));
+    //freeLista(&(res_matriz[0]));
+    imprimirLista(res_matriz[0]);   
+    */k=0;
+    while(k<cant2)
+    {
 
+        for(j=cant2-1;j>=0;j--)
+        {
+            carry=0;
+            for(i=cant1-1;i>=0;i--)
+            {
+		
+			
+		num= ( valor_en_lista(dig2,j)*valor_en_lista(dig1,i) ) + carry;
+		              
+		if (num<=9) 
+		{
+			inserto_valor_en_lista(&(res_matriz[k]),num,i+1);		
+			carry=0;
+		}
+		else                
+		if (num>9)
+                {
+                    carry=findCarry(num);
+                    inserto_valor_en_lista(&(res_matriz[k]),num-10*carry,i+1);
+		
+                }
+            }
+            inserto_valor_en_lista(&(res_matriz[k]),carry,0);
+            k++;
+        }
+    }
+    
+    /* CREO LISTA resAux con cant1+cant2 ceros*/
+    for(i=0;i<cant1+2*cant2;i++) /*Lleno resAux con ceros para poder hacer la suma*/
+    {  
+    	insertarNodoLista(&(resAux),0,resAux);
+    }
+	
+    
+	//imprimirLista(res_matriz[0]);
+    for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
+    {	
+	//printf("FAFAFFAFAFAFAFAF\n");        
+	res=suma_digito_a_digito_List(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+        ++cont;
+	
+	/*Paso res a una lista*/
+	for(i=0;i<cant1+cant2+cont;i++)
+	{
+	   
+	    inserto_valor_en_lista(&(resAux),res[i],i);
+	}
+ 	
+        free(res);
+         
+    }
+    *q_resultado=cant1+cant2+cont;
+    
+    for(k=0;k<cant2;k++)
+    {
+	for(i=0;i<cant1+1+k;i++)
+	{        
+            freeLista(&(res_matriz[k]));
+	}
+    }
+    free(res_matriz);
+    /*Paso resAux a un vector de ushort*/
+    res=(ushort*)malloc(sizeof(ushort)*(cant1+cant2+cont));
+    for(i=0;i<cant1+cant2+cont;i++)
+    {
+	res[i]=valor_en_lista(resAux,i);
+    }
+    for(i=0;i<cant1+cant2+cont;i++)
+    {
+	freeLista(&resAux);
+    }
+    return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
+}
 
