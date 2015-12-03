@@ -687,7 +687,7 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
 }
 
-
+/*
 
 
 operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
@@ -758,7 +758,7 @@ operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
     
 }
 
-/*
+
 operation_status_t leerPartidosJugados(operationList_vector_t * operaciones){
     
     FILE * fpOperaciones;
