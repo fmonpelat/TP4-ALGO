@@ -115,15 +115,15 @@ operation_status_t AddOperationList(operationList_vector_t *oper){
         return NOMEM;
     }
     oper->operacionesList[oper->operList_size]=pAux;
-    
+     
     
     /* pido memoria para cada bignum_t */
-    if( !(oper->operacionesList[0]->op1=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
+    if( !(oper->operacionesList[oper->operList_size]->op1=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
     }
-    if( !(oper->operacionesList[0]->op2=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
+    if( !(oper->operacionesList[oper->operList_size]->op2=(bignumList_t *)malloc( sizeof(bignumList_t) )) )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
@@ -133,9 +133,9 @@ operation_status_t AddOperationList(operationList_vector_t *oper){
     oper->operacionesList[oper->operList_size]->op1->digits=NULL;
     oper->operacionesList[oper->operList_size]->op2->digits=NULL;
     
-    
+     
     oper->operacionesList[oper->operList_size]->op=NOOPERATION;
-    
+     
     return OK;
 }
 
@@ -313,7 +313,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
         
         if( oper->operacionesList[*size]->op1->q_digits > oper->operacionesList[*size]->op2->q_digits )
         {
-            oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op1->digits,
+            oper->operacionesList[*size]->rst=resta_digito_a_digito_List(oper->operacionesList[*size]->op1->digits,
                                                                 oper->operacionesList[*size]->op2->digits,
                                                                 oper->operacionesList[*size]->op1->q_digits,
                                                                 oper->operacionesList[*size]->op2->q_digits,
@@ -327,7 +327,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
             {
                 if ( valor_en_lista(oper->operacionesList[*size]->op1->digits,i)<valor_en_lista(oper->operacionesList[*size]->op2->digits,i) )
                 {
-                    oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op2->digits,
+                    oper->operacionesList[*size]->rst=resta_digito_a_digito_List(oper->operacionesList[*size]->op2->digits,
                                                                         oper->operacionesList[*size]->op1->digits,
                                                                         oper->operacionesList[*size]->op2->q_digits,
                                                                         oper->operacionesList[*size]->op1->q_digits,
@@ -337,7 +337,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
                 }
                 if (valor_en_lista(oper->operacionesList[*size]->op1->digits,i)>valor_en_lista(oper->operacionesList[*size]->op2->digits,i) )
                 {
-                    oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op1->digits,
+                    oper->operacionesList[*size]->rst=resta_digito_a_digito_List(oper->operacionesList[*size]->op1->digits,
                                                                         oper->operacionesList[*size]->op2->digits,
                                                                         oper->operacionesList[*size]->op1->q_digits,
                                                                         oper->operacionesList[*size]->op2->q_digits,
@@ -362,7 +362,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
     {
         if(oper->operacionesList[*size]->op1->sign==NEGATIVE && oper->operacionesList[*size]->op2->sign==POSITIVE)
         {
-            oper->operacionesList[*size]->rst=resta_digito_a_digito(oper->operacionesList[*size]->op2->digits,
+            oper->operacionesList[*size]->rst=resta_digito_a_digito_List(oper->operacionesList[*size]->op2->digits,
                                                                 oper->operacionesList[*size]->op1->digits,
                                                                 oper->operacionesList[*size]->op2->q_digits,
                                                                 oper->operacionesList[*size]->op1->q_digits,
@@ -371,7 +371,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
         }
         else
         {
-            oper->operacionesList[*size]->rst=suma_digito_a_digito(
+            oper->operacionesList[*size]->rst=suma_digito_a_digito_List(
                                                                oper->operacionesList[*size]->op2->digits,
                                                                oper->operacionesList[*size]->op1->digits,
                                                                oper->operacionesList[*size]->op2->q_digits,
@@ -386,7 +386,7 @@ void sumaLista( operationList_vector_t *oper, size_t *size)
     }
     else
     {
-        oper->operacionesList[*size]->rst=suma_digito_a_digito(
+        oper->operacionesList[*size]->rst=suma_digito_a_digito_List(
                                                            oper->operacionesList[*size]->op1->digits,
                                                            oper->operacionesList[*size]->op2->digits,
                                                            oper->operacionesList[*size]->op1->q_digits,
@@ -453,11 +453,11 @@ void restaLista ( operationList_vector_t *oper, size_t *pos)
     {
         if ( oper->operacionesList[*pos]->op1->q_digits < oper->operacionesList[*pos]->op2->q_digits )
         {
-            oper->operacionesList[*pos]->rst=suma_digito_a_digito(oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->q_digits, oper->operacionesList[*pos]->op1->q_digits, &(oper->operacionesList[*pos]->q_rst) );
+            oper->operacionesList[*pos]->rst=suma_digito_a_digito_List(oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->q_digits, oper->operacionesList[*pos]->op1->q_digits, &(oper->operacionesList[*pos]->q_rst) );
         }
         else
         {
-            oper->operacionesList[*pos]->rst=suma_digito_a_digito(oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->q_digits, oper->operacionesList[*pos]->op2->q_digits, &(oper->operacionesList[*pos]->q_rst) );
+            oper->operacionesList[*pos]->rst=suma_digito_a_digito_List(oper->operacionesList[*pos]->op1->digits, oper->operacionesList[*pos]->op2->digits, oper->operacionesList[*pos]->op1->q_digits, oper->operacionesList[*pos]->op2->q_digits, &(oper->operacionesList[*pos]->q_rst) );
         }
         oper->operacionesList[*pos]->sign_rst=NEGATIVE;
         return;
@@ -465,12 +465,12 @@ void restaLista ( operationList_vector_t *oper, size_t *pos)
     
     if ( (oper->operacionesList[*pos]->op1->q_digits) > (oper->operacionesList[*pos]->op2->q_digits) )
     {
-        oper->operacionesList[*pos]->rst = resta_digito_a_digito(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
+        oper->operacionesList[*pos]->rst = resta_digito_a_digito_List(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
         oper->operacionesList[*pos]->sign_rst=POSITIVE;
     }
     else if((oper->operacionesList[*pos]->op1->q_digits)<(oper->operacionesList[*pos]->op2->q_digits))
     {
-        oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
+        oper->operacionesList[*pos]->rst=resta_digito_a_digito_List(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
         oper->operacionesList[*pos]->sign_rst=NEGATIVE;
     }
     
@@ -480,14 +480,14 @@ void restaLista ( operationList_vector_t *oper, size_t *pos)
         {
             if ( valor_en_lista(oper->operacionesList[*pos]->op1->digits,i)<valor_en_lista(oper->operacionesList[*pos]->op2->digits,i) )
             {
-                oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
+                oper->operacionesList[*pos]->rst=resta_digito_a_digito_List(oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->q_digits,oper->operacionesList[*pos]->op1->q_digits,&(oper->operacionesList[*pos]->q_rst));
 
                 oper->operacionesList[*pos]->sign_rst=NEGATIVE;
                 return;
             }
             if ( valor_en_lista(oper->operacionesList[*pos]->op1->digits,i)>valor_en_lista(oper->operacionesList[*pos]->op2->digits,i))
             {
-                oper->operacionesList[*pos]->rst=resta_digito_a_digito(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
+                oper->operacionesList[*pos]->rst=resta_digito_a_digito_List(oper->operacionesList[*pos]->op1->digits,oper->operacionesList[*pos]->op2->digits,oper->operacionesList[*pos]->op1->q_digits,oper->operacionesList[*pos]->op2->q_digits,&(oper->operacionesList[*pos]->q_rst));
                 
                 oper->operacionesList[*pos]->sign_rst=POSITIVE;
                 return;
@@ -565,7 +565,7 @@ void freeLista(bignumNodo_t **lista)
 
 void multiplicarLista(operationList_vector_t *oper, size_t *size)
 {
-    oper->operacionesList[*size]->rst = multiplico(oper->operacionesList[*size]->op1->digits,
+    oper->operacionesList[*size]->rst = multiplico_List(oper->operacionesList[*size]->op1->digits,
                                                oper->operacionesList[*size]->op2->digits,
                                                oper->operacionesList[*size]->op1->q_digits,
                                                oper->operacionesList[*size]->op2->q_digits,
@@ -687,4 +687,112 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
 }
 
+
+
+
+operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
+    
+    FILE * fpOperaciones;
+    bignumNodo_t *aux;
+    size_t i=0;
+    char NombreArchivo[MAX_CHAR];
+    strcpy(NombreArchivo, "partidosjugados.dat");
+    
+    
+    fpOperaciones = fopen(NombreArchivo, "wb");
+    
+    if (!fpOperaciones) {
+        fprintf(stderr, "Error, no se pudo abrir %s\n", NombreArchivo);
+        return ERROR;
+    }
+    
+    //debemos guardar los siguientes datos:
+    // por cada elemnto del vector de operaciones guardaremos (operationList_t):
+    
+    // bignumList_t *op1;
+    // bignumList_t *op2;
+    // opt_t op;
+    // ushort *rst;
+    // size_t q_rst;
+    // sign_t sign_rst;
+    // sign_t inf_rst;
+    // result_state_t st;
+    
+    // bignumNodo_t *digits;
+    // size_t q_digits;
+    // sign_t sign ;
+    // sign_t inf;
+
+    for (i=0; i<operaciones->operList_size; i++)
+    {
+        
+        fwrite(operaciones->operacionesList[i]->op, sizeof(opt_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->q_rst, sizeof(size_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->rst, sizeof(ushort), operaciones->operacionesList[i]->q_rst, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->sign_rst, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->inf_rst, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->st, sizeof(result_state_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->op1->inf, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->op1->sign, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->op1->q_digits, sizeof(size_t), 1, fpOperaciones);
+        aux=operaciones->operacionesList[i]->op1->digits;
+        while (aux)
+        {
+            fwrite(aux->val, sizeof(ushort), 1, fpOperaciones);
+            aux=aux->sig;
+        }
+        fwrite(operaciones->operacionesList[i]->op2->inf, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->op2->sign, sizeof(sign_t), 1, fpOperaciones);
+        fwrite(operaciones->operacionesList[i]->op2->q_digits, sizeof(size_t), 1, fpOperaciones);
+        aux=operaciones->operacionesList[i]->op2->digits;
+        while (aux)
+        {
+            fwrite(aux->val, sizeof(ushort), 1, fpOperaciones);
+            aux=aux->sig;
+        }
+    }
+    fflush(fpOperaciones);
+    fclose(fpOperaciones);
+    
+    return OK;
+    
+}
+
+/*
+operation_status_t leerPartidosJugados(operationList_vector_t * operaciones){
+    
+    FILE * fpOperaciones;
+    char NombreArchivo[MAX_CHAR];
+    strcpy(NombreArchivo, "partidosjugados.dat");
+    
+    
+    
+    
+    
+    fpOperaciones= fopen(NombreArchivo, "rb");
+    
+    if (!fpOperaciones) {
+        fprintf(stderr, "Error, no se pudo abrir %s\n", NombreArchivo);
+        fprintf(stderr, "Si es la primera vez que corre el programa ejecute devuelta por favor\n");
+        return TRUE;
+    }
+    
+    while (fread(buffer, sizeof(int), 1, fpPartidosJugados)) {
+        /*printf("%d ", buffer[0]);
+        fread(buffer + 1, sizeof(int), 1, fpPartidosJugados);
+        /*printf("%d ", buffer[1]);
+        fread(buffer + 2, sizeof(int), 1, fpPartidosJugados);
+        /*printf("%d \n", buffer[2]);
+        
+        if (BuscarPartidoPorId(*listaPartidos, buffer[ID]) == NULL) {
+            fprintf(stderr, "Error, archivo binario malformado.\n");
+            return TRUE;
+        }
+        
+    }
+    return FALSE;
+    
+}
+
+*/
 

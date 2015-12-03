@@ -72,18 +72,17 @@ int main(int argc,char *argv[])
          /*testLista(&operaciones_vect);*/
         
         
-        inicializarStructOperation(&operaciones_vect);
+        inicializarStructOperationList(&operaciones_vect);
         
         while (statusLine!=_EOF)
         {
             
             input=GetLines();
-            operaciones_vect.operList_size++;
-            if(operaciones_vect.operList_size!=0) AddOperation(&operaciones_vect);
+            if(operaciones_vect.operList_size!=0) AddOperationList(&operaciones_vect);
             
             statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op) );
             
-            status_cargado=cargarStructNumeros(operaciones_vect.operacionesList,
+            status_cargado=cargarStructNumerosList(operaciones_vect.operacionesList,
                                                 &(operaciones_vect.operList_size),
                                                 &(operaciones_vect.operList_size),
                                                 num1,
@@ -115,6 +114,7 @@ int main(int argc,char *argv[])
                         fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
                         break;
                 }
+                operaciones_vect.operList_size++;
                 free(input);
                 free(num1);
                 free(num2);
@@ -139,17 +139,17 @@ int main(int argc,char *argv[])
         num2=NULL;
         
         
-        for (i=0; i<operaciones_vect.operList_size+1; i++)
+        for (i=0; i<operaciones_vect.operList_size; i++)
         {
-            freeLista( operaciones_vect.operacionesList[i]->op1->digits);
+            freeLista( &(operaciones_vect.operacionesList[i]->op1->digits));
             operaciones_vect.operacionesList[i]->op1->digits=NULL;
-            freeLista( operaciones_vect.operacionesList[i]->op2->digits);
+            freeLista( &(operaciones_vect.operacionesList[i]->op2->digits));
             operaciones_vect.operacionesList[i]->op2->digits=NULL;
-            freeLista( operaciones_vect.operacionesList[i]->op1);
+            free( operaciones_vect.operacionesList[i]->op1);
             operaciones_vect.operacionesList[i]->op1=NULL;
-            freeLista( operaciones_vect.operacionesList[i]->op2);
+            free( operaciones_vect.operacionesList[i]->op2);
             operaciones_vect.operacionesList[i]->op2=NULL;
-            freeLista( operaciones_vect.operacionesList[i]->rst);
+            free( operaciones_vect.operacionesList[i]->rst);
             operaciones_vect.operacionesList[i]->rst=NULL;
         }
         
@@ -189,7 +189,6 @@ int main(int argc,char *argv[])
 void testLista(operationList_vector_t * oper_vect)
 {
     size_t precision=DEFAULT_PRECISION;
-    size_t i=0;
     /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
     char num1[]="+111";  
     char num2[]="+111";
@@ -230,13 +229,13 @@ void testLista(operationList_vector_t * oper_vect)
 void test(operation_vector_t * oper_vect)
 {
     
-    size_t precision=DEFAULT_PRECISION;
-    size_t i=0;
-    /* Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    char num1[]="+20";
+    /*size_t precision=DEFAULT_PRECISION;*/
+    
+    /*Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
+    /*char num1[]="+20";
     char num2[]="+10";
-    opt_t operation=MULT;
-    operation_status_t status=OK;
+    */
+    
     
     /*
     inicializarStructOperation(oper_vect);
