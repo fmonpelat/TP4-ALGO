@@ -102,7 +102,7 @@ operation_status_t AddOperationList(operationList_vector_t *oper){
     operationList_t *pAux;
     
     
-    if ( !(ppAux=(operationList_t **)realloc(oper->operacionesList,(sizeof(operationList_t*) * (oper->operList_size+1) ) ) )  )
+    if ( !(ppAux=(operationList_t **)realloc(oper->operacionesList,(sizeof(operationList_t *) * (oper->operList_size+1) ) ) )  )
     {
         fprintf(stderr, "no memory \n");
         return NOMEM;
