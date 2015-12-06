@@ -8,6 +8,7 @@
 #include "simplecalc.h"
 #include "bignumList.h"
 
+
 /* Defines para supercalc */
 #define MAX_STR 10
 #define VALID_ARGUMENTS 2 /* argumentos de entrada por parametro 1-> nombre del programa 2-> modo del programa (simplecalc o supercalc)*/
@@ -20,7 +21,7 @@ typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
 
 
-/*##### PROTOTIPOS #########*/
+/*##### PROTOTIPOS #####################################################################*/
 
 void paso_linea_a_struct( char *, operation_t **, int );
 char * GetLines( void );
@@ -32,7 +33,7 @@ void test(operation_vector_t * );
 void testLista(operationList_vector_t * oper_vect);
 
 
-/*#########################*/
+/*######################################################################################*/
 
 
 
@@ -68,11 +69,11 @@ int main(int argc,char *argv[])
     if ( calcmode==SUPERCALC )
     {
         
-        /* Funcion de Prubas comentar todo abajo de esto salvo los frees*/
          /*testLista(&operaciones_vect);*/
         
-        
         inicializarStructOperationList(&operaciones_vect);
+        
+        leerOperaciones(&operaciones_vect);
         
         while (statusLine!=_EOF)
         {
@@ -127,9 +128,9 @@ int main(int argc,char *argv[])
                 printf("Inf\n");
             }
         
-        
-        
-         //liberamos memoria
+        GrabarOperaciones(&operaciones_vect);
+
+        //liberamos memoria
         //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
         free(input);
         free(num1);
@@ -174,7 +175,6 @@ int main(int argc,char *argv[])
 
     }
     
-    
     return 0;
 }
 
@@ -197,6 +197,7 @@ void testLista(operationList_vector_t * oper_vect)
     operation_status_t status=OK;
     
     inicializarStructOperationList(oper_vect);
+    leerOperaciones(oper_vect);
     
     cargarStructNumerosList(&(oper_vect->operacionesList[oper_vect->operList_size]),
                             &(oper_vect->operList_size),
@@ -222,6 +223,7 @@ void testLista(operationList_vector_t * oper_vect)
     printf("Res:\n");
     printArrayShort(oper_vect->operacionesList[oper_vect->operList_size]->rst,oper_vect->operacionesList[oper_vect->operList_size]->q_rst,POSITIVE,DEFAULT_PRECISION);
     
+    GrabarOperaciones(oper_vect);
     
 
 }

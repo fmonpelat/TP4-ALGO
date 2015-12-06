@@ -12,7 +12,10 @@
 #include <stdio.h>
 #include "bignum.h"
 
+
+#define MAX_CHAR_FILE 5000
 typedef unsigned short ushort;
+
 
 typedef struct bignumNodo {
     
@@ -71,7 +74,9 @@ void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i);
 ushort valor_en_lista(bignumNodo_t *dig,int i);
 void printArrayShort(ushort *,size_t ,sign_t ,size_t );
 
+operation_status_t GrabarOperaciones(operationList_vector_t * operaciones);
+operation_status_t leerOperaciones(operationList_vector_t * operaciones);
 
-
+const char* getfield(char* line, int num);
 
 #endif /* defined(__Tp4__bignumList__) */

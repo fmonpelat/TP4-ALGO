@@ -615,7 +615,8 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     freeLista(&(res_matriz[0]));
     //freeLista(&(res_matriz[0]));
     imprimirLista(res_matriz[0]);   
-    */k=0;
+    */
+    k=0;
     while(k<cant2)
     {
 
@@ -687,16 +688,18 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
 }
 
-/*
+
+
 
 
 operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
     
     FILE * fpOperaciones;
     bignumNodo_t *aux;
-    size_t i=0;
+    char delimiter='#';
+    size_t i=0,j=0;
     char NombreArchivo[MAX_CHAR];
-    strcpy(NombreArchivo, "partidosjugados.dat");
+    strcpy(NombreArchivo, "operaciones.dat");
     
     
     fpOperaciones = fopen(NombreArchivo, "wb");
@@ -722,34 +725,43 @@ operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
     // size_t q_digits;
     // sign_t sign ;
     // sign_t inf;
-
-    for (i=0; i<operaciones->operList_size; i++)
+    // lista recorriendola hasta el null
+    
+    for (i=0; i<operaciones->operList_size-1; i++)
     {
         
-        fwrite(operaciones->operacionesList[i]->op, sizeof(opt_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->q_rst, sizeof(size_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->rst, sizeof(ushort), operaciones->operacionesList[i]->q_rst, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->sign_rst, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->inf_rst, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->st, sizeof(result_state_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->op1->inf, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->op1->sign, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->op1->q_digits, sizeof(size_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op), sizeof(opt_t), 1, fpOperaciones);
+        
+        fwrite(&(operaciones->operacionesList[i]->q_rst), sizeof(size_t), 1, fpOperaciones);
+        for (j=0; j<operaciones->operacionesList[i]->q_rst; j++)
+        {
+            fwrite(&(operaciones->operacionesList[i]->rst[j]), sizeof(ushort), 1, fpOperaciones);
+        }
+        
+        fwrite(&(operaciones->operacionesList[i]->sign_rst), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->inf_rst), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->st), sizeof(result_state_t), 1, fpOperaciones);
+        
+        fwrite(&(operaciones->operacionesList[i]->op1->inf), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op1->sign), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op1->q_digits), sizeof(size_t), 1, fpOperaciones);
         aux=operaciones->operacionesList[i]->op1->digits;
         while (aux)
         {
-            fwrite(aux->val, sizeof(ushort), 1, fpOperaciones);
+            fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
             aux=aux->sig;
         }
-        fwrite(operaciones->operacionesList[i]->op2->inf, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->op2->sign, sizeof(sign_t), 1, fpOperaciones);
-        fwrite(operaciones->operacionesList[i]->op2->q_digits, sizeof(size_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op2->inf), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op2->sign), sizeof(sign_t), 1, fpOperaciones);
+        fwrite(&(operaciones->operacionesList[i]->op2->q_digits), sizeof(size_t), 1, fpOperaciones);
         aux=operaciones->operacionesList[i]->op2->digits;
         while (aux)
         {
-            fwrite(aux->val, sizeof(ushort), 1, fpOperaciones);
+            fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
             aux=aux->sig;
         }
+        
+        fwrite(&delimiter, sizeof(char), 1, fpOperaciones);
     }
     fflush(fpOperaciones);
     fclose(fpOperaciones);
@@ -759,40 +771,159 @@ operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
 }
 
 
-operation_status_t leerPartidosJugados(operationList_vector_t * operaciones){
+
+operation_status_t leerOperaciones(operationList_vector_t * operaciones){
     
     FILE * fpOperaciones;
+    size_t auxfp=1;
+    size_t i=0;
     char NombreArchivo[MAX_CHAR];
-    strcpy(NombreArchivo, "partidosjugados.dat");
+    strcpy(NombreArchivo, "operaciones.dat");
+    size_t pos_vector=0;
+    char delimiter;
+    /* Structure operationList_t */
+    opt_t op;
+    size_t q_rst;
+    ushort rst = 0;
+    sign_t sign_rst;
+    sign_t inf_rst;
+    result_state_t st;
+    
+    /* Structure bignumList_t */
+    sign_t inf,sign,q_digits;
+    bignumNodo_t *op1=NULL;
+    bignumNodo_t *op2=NULL;
+    ushort val;
+    
+    /* FOR REFERENCE WHEN WE WRITE THE FILE:
+     fwrite(&(operaciones->operacionesList[i]->op), sizeof(opt_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->q_rst), sizeof(size_t), 1, fpOperaciones);
+     for (j=0; j<operaciones->operacionesList[i]->q_rst; j++)
+     {
+        fwrite(&(operaciones->operacionesList[i]->rst[j]), sizeof(ushort), 1, fpOperaciones);
+     }
+     fwrite(&(operaciones->operacionesList[i]->sign_rst), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->inf_rst), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->st), sizeof(result_state_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->op1->inf), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->op1->sign), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->op1->q_digits), sizeof(size_t), 1, fpOperaciones);
+     aux=operaciones->operacionesList[i]->op1->digits;
+     while (aux)
+     {
+        fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
+        aux=aux->sig;
+     }
+     fwrite(&(operaciones->operacionesList[i]->op2->inf), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->op2->sign), sizeof(sign_t), 1, fpOperaciones);
+     fwrite(&(operaciones->operacionesList[i]->op2->q_digits), sizeof(size_t), 1, fpOperaciones);
+     aux=operaciones->operacionesList[i]->op2->digits;
+     while (aux)
+     {
+        fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
+        aux=aux->sig;
+     }
+     fwrite(&delimiter, sizeof(char), 1, fpOperaciones);
+     */
     
     
     
+    fpOperaciones=fopen(NombreArchivo, "rb");
     
-    
-    fpOperaciones= fopen(NombreArchivo, "rb");
-    
-    if (!fpOperaciones) {
-        fprintf(stderr, "Error, no se pudo abrir %s\n", NombreArchivo);
-        fprintf(stderr, "Si es la primera vez que corre el programa ejecute devuelta por favor\n");
-        return TRUE;
+    if (!fpOperaciones)
+    {
+        return ERROR;
     }
     
-    while (fread(buffer, sizeof(int), 1, fpPartidosJugados)) {
-        /*printf("%d ", buffer[0]);
-        fread(buffer + 1, sizeof(int), 1, fpPartidosJugados);
-        /*printf("%d ", buffer[1]);
-        fread(buffer + 2, sizeof(int), 1, fpPartidosJugados);
-        /*printf("%d \n", buffer[2]);
+    while ( (auxfp=fread(&(op), sizeof(opt_t), 1, fpOperaciones)) )
+    {
+        if (pos_vector!=0) AddOperationList(operaciones);
         
-        if (BuscarPartidoPorId(*listaPartidos, buffer[ID]) == NULL) {
-            fprintf(stderr, "Error, archivo binario malformado.\n");
-            return TRUE;
+        /*printf("vector pos: %zu\n",pos_vector);*/
+        operaciones->operacionesList[pos_vector]->op=op;
+        /*printf("operation: %d\n",op);*/
+        fflush(stdout);
+        auxfp=fread(&(q_rst), sizeof(size_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->q_rst=q_rst;
+        /*printf("cantidad de elementos de resultado: %zu\n",q_rst);*/
+        fflush(stdout);
+        
+        /* Array of result of operation */
+        operaciones->operacionesList[pos_vector]->rst=(ushort*)malloc(sizeof(ushort)*q_rst);
+        for (i=0; i<q_rst; i++) {
+            auxfp=fread(&(rst), sizeof(ushort), 1, fpOperaciones);
+            operaciones->operacionesList[pos_vector]->rst[i]=rst;
+            /*printf("resultado: %d\n",rst);*/
+        }
+        fflush(stdout);
+        
+        auxfp=fread(&(sign_rst), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->sign_rst=sign_rst;
+        /*printf("signo resultado: %d\n",sign_rst);*/
+        auxfp=fread(&(inf_rst), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->inf_rst=inf_rst;
+        /*printf("es infinito el resultado: %d\n",inf_rst);*/
+        auxfp=fread(&(st), sizeof(result_state_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->st=st;
+        /*printf("result state: %d\n",st);*/
+
+        /* Structure  bignumList_t op1 */
+        auxfp=fread(&(inf), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op1->inf=inf;
+        auxfp=fread(&(sign), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op1->sign=sign;
+        auxfp=fread(&(q_digits), sizeof(size_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op1->q_digits=q_digits;
+        for (i=0; i<q_digits; i++)
+        {
+            auxfp=fread(&(val), sizeof(ushort), 1, fpOperaciones);
+            insertarNodoLista(&(op1), val, NULL);
+            /*printf("nodo pos op1:%d\n",val);*/
+        }
+        operaciones->operacionesList[pos_vector]->op1->digits=op1;
+        
+        /* Structure bignumList_t op2 */
+        auxfp=fread(&(inf), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op2->inf=inf;
+        auxfp=fread(&(sign), sizeof(sign_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op2->sign=sign;
+        auxfp=fread(&(q_digits), sizeof(size_t), 1, fpOperaciones);
+        operaciones->operacionesList[pos_vector]->op2->q_digits=q_digits;
+        for (i=0; i<q_digits; i++)
+        {
+            auxfp=fread(&(val), sizeof(ushort), 1, fpOperaciones);
+            insertarNodoLista(&(op2), val, NULL);
+            /*printf("nodo pos op2:%d\n",val);*/
+
+        }
+        operaciones->operacionesList[pos_vector]->op2->digits=op2;
+        
+        auxfp=fread(&(delimiter), sizeof(char), 1, fpOperaciones);
+        if(delimiter!='#')
+        {
+            fprintf(stderr, "error reading form file, file malformed\n");
+        }
+        else
+        {
+            /*printf("######################%d\n",op);*/
         }
         
+        /* increment of vector positions */
+        pos_vector++;
+        operaciones->operList_size++;
+        
+        
     }
-    return FALSE;
+    return OK;
     
 }
 
-*/
+
+
+
+
+
+
+
+
 
