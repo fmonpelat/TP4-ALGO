@@ -1,54 +1,14 @@
-//
+/*
 //  bignumList.c
 //  Tp4
 //
 //  Created by fmonpelat on 11/25/15.
 //  Copyright (c) 2015 ___FMONPELAT___. All rights reserved.
-//
+*/
 
 #include "bignumList.h"
 
-/*
- typedef struct bignumNodo {
- 
- unsigned short val;
- struct bignumNodo *sig;
- struct bignumNodo *ant;
- 
- } bignumNodo_t;
- 
- 
- typedef struct bignumLis {
- 
- bignumNodo_t *digits;
- size_t q_digits;
- sign_t sign ;
- sign_t inf;
- 
- } bignumList_t;
- 
- typedef struct operationList {
- 
- bignumList_t *op1;
- bignumList_t *op2;
- opt_t op;
- ushort *rst;
- 
- size_t q_rst;
- sign_t sign_rst;
- sign_t inf_rst;
- result_state_t st;
- 
- } operationList_t;
- 
- typedef struct operationList_vector  {
- 
- operationList_t **operacionesList;
- size_t operList_size;
- 
- } operationList_vector_t;
 
-*/
 
 operation_status_t inicializarStructOperationList(operationList_vector_t * oper ){
     

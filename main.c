@@ -131,8 +131,8 @@ int main(int argc,char *argv[])
             }
             GrabarOperaciones(&operaciones_vect);
         
-            //liberamos memoria
-            //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
+            /*liberamos memoria
+            free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);*/
             free(input);
             free(num1);
             free(num2);
