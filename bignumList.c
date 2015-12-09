@@ -586,9 +586,7 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     {  
     	insertarNodoLista(&(resAux),0,resAux);
     }
-	
     
-	//imprimirLista(res_matriz[0]);
     for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
     {
         res=suma_digito_a_digito_List(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
@@ -710,7 +708,6 @@ operation_status_t leerOperaciones(operationList_vector_t * operaciones){
     size_t auxfp=1;
     size_t i=0;
     char NombreArchivo[MAX_CHAR];
-    strcpy(NombreArchivo, "operaciones.dat");
     size_t pos_vector=0;
     char delimiter;
     /* Structure operationList_t */
@@ -727,6 +724,8 @@ operation_status_t leerOperaciones(operationList_vector_t * operaciones){
     bignumNodo_t *op2=NULL;
     ushort val;
     
+    strcpy(NombreArchivo, "operaciones.dat");
+
     
     fpOperaciones=fopen(NombreArchivo, "rb");
     
