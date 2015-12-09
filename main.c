@@ -157,7 +157,7 @@ int main(int argc,char *argv[])
             operaciones_vect.operacionesList[i]->rst=NULL;
         }
         
-        for (i=0; i<operaciones_vect.operList_size+1; i++)
+        for (i=0; i<operaciones_vect.operList_size; i++)
         {
             free(operaciones_vect.operacionesList[i]);
             operaciones_vect.operacionesList[i]=NULL;
