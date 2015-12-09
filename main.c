@@ -73,72 +73,75 @@ int main(int argc,char *argv[])
         
         inicializarStructOperationList(&operaciones_vect);
         
-        leerOperaciones(&operaciones_vect);
-        
-        while (statusLine!=_EOF)
+        status_cargado=leerOperaciones(&operaciones_vect);
+        if (status_cargado!=ERROR)
         {
             
-            input=GetLines();
-            if(operaciones_vect.operList_size!=0) AddOperationList(&operaciones_vect);
-            
-            statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op) );
-            
-            status_cargado=cargarStructNumerosList(operaciones_vect.operacionesList,
-                                                &(operaciones_vect.operList_size),
-                                                &(operaciones_vect.operList_size),
-                                                num1,
-                                                num2,
-                                                &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op),
-                                                precision,
-                                                statusLine
-                                                );
-            
-        
-                switch (operaciones_vect.operacionesList[operaciones_vect.operList_size]->op)
-                {
-                    case SUMA:
-                                sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
-                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
-                                break;
-                    case RESTA:
-                                restaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
-                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
-                                break;
-                    case MULT:
-                                multiplicarLista(&operaciones_vect, &(operaciones_vect.operList_size));
-                                printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
-                                break;
-                    case NOOPERATION:
-                                sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
-                                break;
-                    default:
-                        fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
-                        break;
+            while (statusLine!=_EOF)
+            {
+                
+                input=GetLines();
+                if(operaciones_vect.operList_size!=0) AddOperationList(&operaciones_vect);
+                
+                statusLine=parseLines(&input, &num1, &num2, &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op) );
+                
+                status_cargado=cargarStructNumerosList(operaciones_vect.operacionesList,
+                                                    &(operaciones_vect.operList_size),
+                                                    &(operaciones_vect.operList_size),
+                                                    num1,
+                                                    num2,
+                                                    &(operaciones_vect.operacionesList[operaciones_vect.operList_size]->op),
+                                                    precision,
+                                                    statusLine
+                                                       );
+                
+                    switch (operaciones_vect.operacionesList[operaciones_vect.operList_size]->op)
+                    {
+                        case SUMA:
+                                    sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
+                                    printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
+                                    break;
+                        case RESTA:
+                                    restaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
+                                    printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
+                                    break;
+                        case MULT:
+                                    multiplicarLista(&operaciones_vect, &(operaciones_vect.operList_size));
+                                    printArrayShort(operaciones_vect.operacionesList[operaciones_vect.operList_size]->rst, operaciones_vect.operacionesList[operaciones_vect.operList_size]->q_rst,operaciones_vect.operacionesList[operaciones_vect.operList_size]->sign_rst,precision);
+                                    break;
+                        case NOOPERATION:
+                                    sumaLista(&operaciones_vect, &(operaciones_vect.operList_size) );
+                                    break;
+                        default:
+                            fprintf(stderr, "no se pudo efectuar ninguna operacion\n");
+                            break;
+                    }
+                    
+                    operaciones_vect.operList_size++;
+                    free(input);
+                    free(num1);
+                    free(num2);
+                    input=NULL;
+                    num1=NULL;
+                    num2=NULL;
                 }
-                operaciones_vect.operList_size++;
-                free(input);
-                free(num1);
-                free(num2);
-                input=NULL;
-                num1=NULL;
-                num2=NULL;
-            }
             if(status_cargado==INF)
             {
                 printf("Inf\n");
             }
+            GrabarOperaciones(&operaciones_vect);
         
-        GrabarOperaciones(&operaciones_vect);
+            //liberamos memoria
+            //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
+            free(input);
+            free(num1);
+            free(num2);
+            input=NULL;
+            num1=NULL;
+            num2=NULL;
 
-        //liberamos memoria
-        //free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);
-        free(input);
-        free(num1);
-        free(num2);
-        input=NULL;
-        num1=NULL;
-        num2=NULL;
-        
+        }
+    
         
         for (i=0; i<operaciones_vect.operList_size; i++)
         {

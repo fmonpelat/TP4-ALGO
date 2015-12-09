@@ -155,20 +155,6 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
     if ( (*pos)>(*size) ) return ERROR;
     
     
-    /* hay que llamar a la funcion de insertarNodo
-    
-    if( !( oper[*pos]->op1->digits=(ushort *)malloc( sizeof(ushort)*(size_num1-1)) ) )
-    {
-        fprintf(stderr, "no memory \n");
-        return NOMEM;
-    }
-    if( !(oper[*pos]->op2->digits=(ushort *)malloc(sizeof(ushort)*(size_num2-1))) )
-    {
-        fprintf(stderr, "no memory \n");
-        return NOMEM;
-    }
-     */
-    
     if (num1[0]=='-') {
         oper[*pos]->op1->sign=NEGATIVE;
     }
@@ -190,16 +176,10 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
     for (i=1; i<size_num1; i++)
     {
         insertarNodoLista(&(oper[*pos]->op1->digits), (ushort)(num1[i] - '0'), oper[*pos]->op1->digits);
-        /* hay que llamar a insertar nodo
-         oper[*pos]->op1->digits[i-1]=(ushort)(num1[i] - '0');
-         */
     }
     for (i=1; i<size_num2; i++)
     {
         insertarNodoLista(&(oper[*pos]->op2->digits), (ushort)(num2[i] - '0'), oper[*pos]->op2->digits);
-        /*
-        oper[*pos]->op2->digits[i-1]=(ushort)(num2[i] - '0');
-         */
     }
     
     /* Agregamos q digits para saber hasta donde debemos iterar */
@@ -213,11 +193,13 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
     oper[*pos]->op2->inf=NEGATIVE;
     
     /* preguntamos si excedemos la precision */
-    if (oper[*pos]->op1->q_digits>precision) {
+    if (oper[*pos]->op1->q_digits>precision)
+    {
         oper[*pos]->op1->inf=POSITIVE;
         return INF;
     }
-    if (oper[*pos]->op2->q_digits>precision) {
+    if (oper[*pos]->op2->q_digits>precision)
+    {
         oper[*pos]->op2->inf=POSITIVE;
         return INF;
     }
@@ -230,9 +212,8 @@ operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,s
 
 
 
-void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterior){
-    
-    //bignumNodo_t * auxLista=NULL;
+void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterior)
+{
     
     if (!*lista) {
         (*lista)=(bignumNodo_t*)malloc( sizeof(bignumNodo_t) );
@@ -241,11 +222,12 @@ void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterio
         (*lista)->ant=anterior;
         
     }
-    else insertarNodoLista(&((*lista)->sig), valor,*lista/*Creo que este parámetro está mal, no va (*lista)->sig ??*/);
+    else insertarNodoLista(&((*lista)->sig), valor,*lista);
     
 }
 
-void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
+void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision)
+{
     
     size_t i=0;
     int flag_print=0;
@@ -277,12 +259,13 @@ void printArrayShort(ushort *str,size_t size,sign_t sign,size_t precision){
     printf("\n");
 }
 
-void imprimirLista(bignumNodo_t * lista){
+void imprimirLista(bignumNodo_t * lista)
+{
     
-    if ( lista == NULL ) {
-        return;
-    }
-    if ( !(lista->sig) ) {
+    if ( lista == NULL ) return;
+    
+    if ( !(lista->sig) )
+    {
         printf("%hu",lista->val);
         return;
     }
@@ -297,8 +280,8 @@ ushort valor_en_lista(bignumNodo_t *dig,int i)
     bignumNodo_t *aux=NULL;
     for(aux=dig;aux->sig!=NULL;aux=aux->sig)
     {
-	if(j==i) break;
-	j++;
+        if(j==i) break;
+        j++;
     }
     return aux->val;
 }
@@ -544,9 +527,8 @@ void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i)
     bignumNodo_t *aux;
     for(aux=(*lista);aux->sig!=NULL;aux=aux->sig)
     {
-	if (j==i) break;
-	j++;
-
+        if (j==i) break;
+        j++;
     }
     aux->val=num;
 }
@@ -588,6 +570,8 @@ void multiplicarLista(operationList_vector_t *oper, size_t *size)
   
   
 }
+
+
 ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado)
 {
     bignumNodo_t ** res_matriz=NULL;
@@ -605,17 +589,11 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     for(k=0;k<cant2;k++)
     {
         for(i=0;i<cant1+1+k;i++)
-	{
-		insertarNodoLista(&(res_matriz[k]),0,res_matriz[k]);
-	}
+        {
+            insertarNodoLista(&(res_matriz[k]),0,res_matriz[k]);
+        }
     }
-   /* inserto_valor_en_lista(&(res_matriz[0]),8,0);
-    inserto_valor_en_lista(&(res_matriz[0]),8,1);
-    imprimirLista(res_matriz[0]);
-    freeLista(&(res_matriz[0]));
-    //freeLista(&(res_matriz[0]));
-    imprimirLista(res_matriz[0]);   
-    */
+
     k=0;
     while(k<cant2)
     {
@@ -625,21 +603,17 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
             carry=0;
             for(i=cant1-1;i>=0;i--)
             {
-		
-			
-		num= ( valor_en_lista(dig2,j)*valor_en_lista(dig1,i) ) + carry;
+                num= ( valor_en_lista(dig2,j)*valor_en_lista(dig1,i) ) + carry;
 		              
-		if (num<=9) 
-		{
-			inserto_valor_en_lista(&(res_matriz[k]),num,i+1);		
-			carry=0;
-		}
-		else                
-		if (num>9)
+                if (num<=9)
+                {
+                    inserto_valor_en_lista(&(res_matriz[k]),num,i+1);
+                    carry=0;
+                }
+                else if (num>9)
                 {
                     carry=findCarry(num);
                     inserto_valor_en_lista(&(res_matriz[k]),num-10*carry,i+1);
-		
                 }
             }
             inserto_valor_en_lista(&(res_matriz[k]),carry,0);
@@ -656,36 +630,34 @@ ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, s
     
 	//imprimirLista(res_matriz[0]);
     for(k=cant2-1;k>=0;k--)   /*Este es el procedimiento para que vaya sumando desde la ultima fila de la matriz, hacia arriba.*/
-    {	
-	//printf("FAFAFFAFAFAFAFAF\n");        
-	res=suma_digito_a_digito_List(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
+    {
+        res=suma_digito_a_digito_List(resAux,res_matriz[k],cant1+cant2+cont,cant1+1+k,q_resultado);
         ++cont;
-	
-	/*Paso res a una lista*/
-	for(i=0;i<cant1+cant2+cont;i++)
-	{
-	   
-	    inserto_valor_en_lista(&(resAux),res[i],i);
-	}
- 	
+        
+        /*Paso res a una lista*/
+        for(i=0;i<cant1+cant2+cont;i++)
+        {
+            inserto_valor_en_lista(&(resAux),res[i],i);
+        }
         free(res);
-         
     }
+    
     *q_resultado=cant1+cant2+cont;
     
     for(k=0;k<cant2;k++)
     {
-	freeLista(&(res_matriz[k]));
+        freeLista(&(res_matriz[k]));
     }
     free(res_matriz);
+    
     /*Paso resAux a un vector de ushort*/
     res=(ushort*)malloc(sizeof(ushort)*(cant1+cant2+cont));
     for(i=0;i<cant1+cant2+cont;i++)
     {
-	res[i]=valor_en_lista(resAux,i);
+        res[i]=valor_en_lista(resAux,i);
     }
     freeLista(&resAux);
-    return res;	/* Esta no devuelve un vector, devuelve una lista. Para imprimirla afuera hay q llamar a imprimirLista */
+    return res;
 }
 
 
@@ -709,30 +681,30 @@ operation_status_t GrabarOperaciones(operationList_vector_t * operaciones){
         return ERROR;
     }
     
-    //debemos guardar los siguientes datos:
-    // por cada elemnto del vector de operaciones guardaremos (operationList_t):
+    /*debemos guardar los siguientes datos:
+     por cada elemnto del vector de operaciones guardaremos (operationList_t):
     
-    // bignumList_t *op1;
-    // bignumList_t *op2;
-    // opt_t op;
-    // ushort *rst;
-    // size_t q_rst;
-    // sign_t sign_rst;
-    // sign_t inf_rst;
-    // result_state_t st;
+     bignumList_t *op1;
+     bignumList_t *op2;
+     opt_t op;
+     ushort *rst;
+     size_t q_rst;
+     sign_t sign_rst;
+     sign_t inf_rst;
+     result_state_t st;
     
-    // bignumNodo_t *digits;
-    // size_t q_digits;
-    // sign_t sign ;
-    // sign_t inf;
-    // lista recorriendola hasta el null
-    
+     bignumNodo_t *digits;
+     size_t q_digits;
+     sign_t sign ;
+     sign_t inf;
+     lista recorriendola hasta el null
+    */
+     
     for (i=0; i<operaciones->operList_size-1; i++)
     {
-        
         fwrite(&(operaciones->operacionesList[i]->op), sizeof(opt_t), 1, fpOperaciones);
-        
         fwrite(&(operaciones->operacionesList[i]->q_rst), sizeof(size_t), 1, fpOperaciones);
+        
         for (j=0; j<operaciones->operacionesList[i]->q_rst; j++)
         {
             fwrite(&(operaciones->operacionesList[i]->rst[j]), sizeof(ushort), 1, fpOperaciones);
@@ -795,44 +767,12 @@ operation_status_t leerOperaciones(operationList_vector_t * operaciones){
     bignumNodo_t *op2=NULL;
     ushort val;
     
-    /* FOR REFERENCE WHEN WE WRITE THE FILE:
-     fwrite(&(operaciones->operacionesList[i]->op), sizeof(opt_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->q_rst), sizeof(size_t), 1, fpOperaciones);
-     for (j=0; j<operaciones->operacionesList[i]->q_rst; j++)
-     {
-        fwrite(&(operaciones->operacionesList[i]->rst[j]), sizeof(ushort), 1, fpOperaciones);
-     }
-     fwrite(&(operaciones->operacionesList[i]->sign_rst), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->inf_rst), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->st), sizeof(result_state_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->op1->inf), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->op1->sign), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->op1->q_digits), sizeof(size_t), 1, fpOperaciones);
-     aux=operaciones->operacionesList[i]->op1->digits;
-     while (aux)
-     {
-        fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
-        aux=aux->sig;
-     }
-     fwrite(&(operaciones->operacionesList[i]->op2->inf), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->op2->sign), sizeof(sign_t), 1, fpOperaciones);
-     fwrite(&(operaciones->operacionesList[i]->op2->q_digits), sizeof(size_t), 1, fpOperaciones);
-     aux=operaciones->operacionesList[i]->op2->digits;
-     while (aux)
-     {
-        fwrite(&(aux->val), sizeof(ushort), 1, fpOperaciones);
-        aux=aux->sig;
-     }
-     fwrite(&delimiter, sizeof(char), 1, fpOperaciones);
-     */
-    
-    
     
     fpOperaciones=fopen(NombreArchivo, "rb");
     
     if (!fpOperaciones)
     {
-        return ERROR;
+        return OK;
     }
     
     while ( (auxfp=fread(&(op), sizeof(opt_t), 1, fpOperaciones)) )
@@ -902,17 +842,16 @@ operation_status_t leerOperaciones(operationList_vector_t * operaciones){
         if(delimiter!='#')
         {
             fprintf(stderr, "error reading form file, file malformed\n");
+            return ERROR;
         }
         else
         {
             /*printf("######################%d\n",op);*/
         }
         
-        /* increment of vector positions */
         pos_vector++;
         operaciones->operList_size++;
-        
-        
+    
     }
     return OK;
     

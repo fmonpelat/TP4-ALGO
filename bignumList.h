@@ -57,26 +57,22 @@ typedef struct operationList_vector  {
 
 
 /*############ FUNCIONES ###################*/
-void insertarNodoLista(bignumNodo_t ** lista, ushort valor,bignumNodo_t *anterior);
-operation_status_t cargarStructNumerosList(operationList_t **oper,size_t *size,size_t *pos,char *num1,char *num2, opt_t *operation,size_t precision,operation_status_t status);
-operation_status_t AddOperationList(operationList_vector_t *oper);
-operation_status_t inicializarStructOperationList(operationList_vector_t * oper );
-void imprimirLista(bignumNodo_t * lista);
-void sumaLista( operationList_vector_t *oper, size_t *size);
-ushort * suma_digito_a_digito_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
-void restaLista(operationList_vector_t *oper, size_t *size);
-ushort * resta_digito_a_digito_List (bignumNodo_t *dig1, bignumNodo_t *dig2, size_t cant1, size_t cant2, size_t *q_resultado);
-void multiplicarLista( operationList_vector_t *oper, size_t *size);
-ushort * multiplico_List (bignumNodo_t *dig1,bignumNodo_t *dig2, size_t cant1, size_t cant2,size_t * q_resultado);
-
-void freeLista(bignumNodo_t **lista);
-void inserto_valor_en_lista(bignumNodo_t ** lista,ushort num, size_t i);
-ushort valor_en_lista(bignumNodo_t *dig,int i);
+void insertarNodoLista(bignumNodo_t ** , ushort ,bignumNodo_t *);
+operation_status_t cargarStructNumerosList(operationList_t **,size_t *,size_t *,char *,char *, opt_t *,size_t ,operation_status_t status);
+operation_status_t AddOperationList(operationList_vector_t *);
+operation_status_t inicializarStructOperationList(operationList_vector_t * );
+void imprimirLista(bignumNodo_t * );
+void sumaLista( operationList_vector_t *, size_t *);
+ushort * suma_digito_a_digito_List (bignumNodo_t *,bignumNodo_t *, size_t , size_t , size_t *);
+void restaLista(operationList_vector_t *, size_t *);
+ushort * resta_digito_a_digito_List (bignumNodo_t *, bignumNodo_t *, size_t , size_t , size_t *);
+void multiplicarLista( operationList_vector_t *, size_t *);
+ushort * multiplico_List (bignumNodo_t *,bignumNodo_t *, size_t , size_t ,size_t *);
+void freeLista(bignumNodo_t **);
+void inserto_valor_en_lista(bignumNodo_t **,ushort , size_t);
+ushort valor_en_lista(bignumNodo_t *,int );
 void printArrayShort(ushort *,size_t ,sign_t ,size_t );
-
-operation_status_t GrabarOperaciones(operationList_vector_t * operaciones);
-operation_status_t leerOperaciones(operationList_vector_t * operaciones);
-
-const char* getfield(char* line, int num);
+operation_status_t GrabarOperaciones(operationList_vector_t *);
+operation_status_t leerOperaciones(operationList_vector_t *);
 
 #endif /* defined(__Tp4__bignumList__) */
