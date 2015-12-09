@@ -812,6 +812,7 @@ operation_status_t leerOperaciones(operationList_vector_t * operaciones){
         operaciones->operList_size++;
     
     }
+    fclose(fpOperaciones);
     return OK;
     
 }
