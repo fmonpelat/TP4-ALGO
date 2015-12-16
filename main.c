@@ -21,7 +21,7 @@ typedef enum{ SIMPLECALC, SUPERCALC} calcMode_t;
 
 
 
-/*##### PROTOTIPOS #####################################################################*/
+/*##### PROTOTIPOS #####*/
 
 void paso_linea_a_struct( char *, operation_t **, int );
 char * GetLines( void );
@@ -29,7 +29,6 @@ operation_status_t parseLines( char ** ,char ** , char **, opt_t * );
 char * searchEnter(char * );
 char * prependChar(const char * , char );
 operation_status_t ValidateArguments(int ,char **,size_t *,calcMode_t * ,char **,char **);
-void test(operation_vector_t * );
 void testLista(operationList_vector_t * oper_vect);
 
 
@@ -131,8 +130,8 @@ int main(int argc,char *argv[])
             }
             GrabarOperaciones(&operaciones_vect);
         
-            /*liberamos memoria
-            free_operation_t(operaciones_vect.operaciones, operaciones_vect.oper_size,statusLine);*/
+            /*liberamos memoria*/
+           
             free(input);
             free(num1);
             free(num2);
@@ -230,128 +229,6 @@ void testLista(operationList_vector_t * oper_vect)
     
 
 }
-
-void test(operation_vector_t * oper_vect)
-{
-    
-    /*size_t precision=DEFAULT_PRECISION;*/
-    
-    /*Los numeros van con su signo para ser tomados y cargados correctamente en cargarStructNumeros */
-    /*char num1[]="+20";
-    char num2[]="+10";
-    */
-    
-    
-    /*
-    inicializarStructOperation(oper_vect);
-    cargarStructNumeros(&(oper_vect->operaciones[oper_vect->oper_size]), &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    */
-    
-    /*probamos las funciones una por una */
-    
-    /* Prueba de resta_digito_a_digito() probar con los numeros siguientes num1 > num2 en caracteres
-       char num1[]="+40";
-       char num2[]="+2";
-    
-    opt_t operation=RESTA;
-    
-    oper_vect->operaciones[oper_vect->oper_size]->rst = resta_digito_a_digito(
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                              oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                              &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    */
-    
-    
-    /* Prueba de resta()
-    resta(oper_vect, &(oper_vect->oper_size));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    resta(oper_vect, &(oper_vect->oper_size));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-    /* Prueba de suma_digito_a_digito() (no funciona si el primer op1 tiene mas caracteres que el op2 se llama a suma para contrarestar este problema.)
-     oper_vect->operaciones[oper_vect->oper_size]->rst = suma_digito_a_digito(
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                             oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                             &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-     printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-     oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-     oper_vect->op
-    */
-    
-    /* Prueba de suma()
-
-    suma( oper_vect, &(oper_vect->oper_size) );
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    suma( oper_vect, &(oper_vect->oper_size) );
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-    /* Prueba de Multiplicacion
-    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                   oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                   &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-    
-    oper_vect->oper_size++;
-    AddOperation(oper_vect);
-    
-    cargarStructNumeros(oper_vect->operaciones, &(oper_vect->oper_size), &(oper_vect->oper_size), num1, num2, &(operation) ,precision,status);
-    
-    oper_vect->operaciones[oper_vect->oper_size]->rst = multiplico(
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op1->q_digits,
-                                                                oper_vect->operaciones[oper_vect->oper_size]->op2->q_digits,
-                                                                &(oper_vect->operaciones[oper_vect->oper_size]->q_rst));
-    printArrayShort(oper_vect->operaciones[oper_vect->oper_size]->rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->q_rst,
-                    oper_vect->operaciones[oper_vect->oper_size]->sign_rst,
-                    precision);
-     */
-    
-}
-
 
 
 operation_status_t ValidateArguments(int argc,char **argv,size_t *precision,calcMode_t *mode, char ** output,char **input)
